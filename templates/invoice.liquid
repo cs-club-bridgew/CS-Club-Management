@@ -103,7 +103,10 @@
                     <td>${{item.total }}</td>
                 </tr>
             {% endfor %}
-            <tr>
+            {% comment %} <tr style="border-left: 1px solid transparent;">
+                <td style="border: none;"></td>
+            </tr> {% endcomment %}
+            <tr style="padding: 10px;">
                 <td colspan=3 style="border: 1px solid transparent;border-right: 1px solid black;"></td>
                 <td>Tax</td>
                 <td>${{tax}}</td>
