@@ -186,7 +186,7 @@
             cents += "0"
         }
         // Cover floating point errors
-        cents = cents.splice(0,2)
+        cents = cents.slice(0,2)
         return `${dollars}.${cents}`
     }
 
