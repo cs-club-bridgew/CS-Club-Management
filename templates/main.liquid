@@ -6,7 +6,7 @@
     <title>Computer Science Club Finances</title>
 </head>
 <body>
-    <button>New Finance Record</button>
+    <button onclick="window.location.href='/new/'">New Finance Record</button>
     <table class="MainTable">
         <tr>
             <th>Item ID</th>
@@ -16,6 +16,7 @@
             <th>Items</th>
             <th>Total</th>
             <th>View</th>
+            <th>Edit</th>
         </tr>
     {% for item in records %}
         <tr>
@@ -38,6 +39,7 @@
             <td>{{item.li | size}}</td>
             <td>{{item.total}}</td>
             <td><button onclick="window.open('/view/{{item.id}}')">Open</button></td>
+            <td><button onclick="window.open('/edit/{{item.id}}')">Edit</button></td>
         </tr>
     {% endfor %}
     </table>
@@ -48,7 +50,8 @@
     }
     table, td, th{
         border-collapse: collapse;
-        border: 1px solid black
+        border: 1px solid black;
+        text-transform: capitalize;
     }
 </style>
 </html>

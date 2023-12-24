@@ -13,6 +13,26 @@
     {% if status=="closed" %}
         alert("Invoice status: Closed");
     {% endif %}
+
+    {% if status=="pending" %}
+        alert("Invoice status: Pending\nAwaiting Approval.");
+    {% endif %}
+
+    {% if status=="rejected" %}
+        alert("Invoice status: Rejected");
+    {% endif %}
+
+    {% if status=="approved" %}
+        alert("Invoice status: Approved\nAwaiting Payment.");
+    {% endif %}
+
+    {% if status=="paid" %}
+        alert("Invoice status: Paid");
+    {% endif %}
+
+    {% if status=="cancelled" %}
+        alert("Invoice status: Cancelled");
+    {% endif %}
     </script>
 
 </head>

@@ -9,7 +9,8 @@
             "Remit to:",
             "Computer Science Club",
             "24 Park Avenue",
-            "Bridgewater, MA 02325"],
+            "Bridgewater, MA 02325"
+        ],
         "li": [
             {
                 "line": 1,
@@ -84,5 +85,31 @@
         "fees": "0.00",
         "total": "180.00",
         "status": "paid"
+    },
+    {
+        "id": "test",
+        "date": "NaN undefined, NaN",
+        "creator": "Alex Dasneves",
+        "approver": "SGA Finance Board",
+        "type": "sga_budget",
+        "return_addr": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "li": [
+            {
+                "line": 1,
+                "desc": "Test",
+                "ammt": "1.00",
+                "qty": "10",
+                "total": "10.00"
+            }
+        ],
+        "tax": ".00",
+        "fees": ".00",
+        "total": "10.00",
+        "status": "closed"
     }
 ]

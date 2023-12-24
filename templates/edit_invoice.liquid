@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit {{id}}</title>
+    <script>
+    function updateBoxes(){
+        document.getElementById("RA1").value = "{{RA1}}";
+        document.getElementById("RA2").value = "{{RA2}}";
+        document.getElementById("RA3").value = "{{RA3}}";
+        document.getElementById("RA4").value = "{{RA4}}";
+        document.getElementById("ID").value = "{{id}}";
+        document.getElementById("creator").value = "{{creator}}";
+        document.getElementById("approver").value = "{{approver}}";
+        let date = new Date("{{date}}")
+        document.getElementById("createDate").value = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+        document.getElementById("S1").checked = "{{status}}" == "open";
+        document.getElementById("S2").checked = "{{status}}" == "paid";
+        document.getElementById("S3").checked = "{{status}}" == "closed";
+        document.getElementById("S4").checked = "{{status}}" == "granted";
+        document.getElementById("S5").checked = "{{status}}" == "pending";
+        document.getElementById("IT1").checked = "{{type}}" == "invoice";
+        document.getElementById("IT2").checked = "{{type}}" == "c_invoice";
+        document.getElementById("IT3").checked = "{{type}}" == "sga_budget";
+        document.getElementById("taxes").value = "{{tax}}";
+        document.getElementById("fees").value = "{{fees}}";
+        document.getElementById("total").value = "{{total}}";
+        products = []
+        {% for product in li %}
+        products.push({line: "{{product.line}}", description: "{{product.desc}}", unit_price: "{{product.ammt}}", quantity: "{{product.qty}}"})
+        {% endfor %}
+        console.log("{{li}}")
+
+        let table = document.getElementById("products");
+        for(let i = 0; i < products.length; i++){
+            console.log(products[i])
+            let row = table.insertRow();
+            let cell1 = row.insertCell();
+            let cell2 = row.insertCell();
+            let cell3 = row.insertCell();
+            let cell4 = row.insertCell();
+            let cell5 = row.insertCell();
+            cell1.innerHTML = products[i].line;
+            cell2.innerHTML = `<input type='text' onchange='updateTotal()' id='prod${i+1}'>`;
+            cell2.firstChild.value = products[i].description;
+            cell3.innerHTML = `<input type='text' onchange='updateTotal()' id="price${i+1}">`;
+            cell3.firstChild.value = products[i].unit_price;
+            cell4.innerHTML = `<input type='text' onchange='updateTotal()' id="qty${i+1}">`;
+            cell4.firstChild.value = products[i].quantity;
+
+            cell5.innerHTML = `<button onclick="RemoveRow(${i+1})">Remove</button>`;
+        }
+
+    }
+    function updateTotal(){
+        // Iterate through the table and calculate the total
+        let table = document.getElementById("products")
+        let total = 0
+        for(let i = 1; i < table.rows.length; i++){
+            console.error(i)
+            let price = parseFloat(document.getElementById(`price${i}`).value)
+            let qty = parseFloat(document.getElementById(`qty${i}`).value)
+            
+            total += isNaN(price) || isNaN(qty) ? 0 : price * qty
+        }
+        // Add on the taxes and fees
+        let tax = parseFloat(document.getElementById("taxes").value)
+        let fees = parseFloat(document.getElementById("fees").value)
+
+        total += isNaN(tax) ? 0 : tax
+        total += isNaN(fees) ? 0 : fees
+
+        // Update the total box
+        document.getElementById("total").value = total
+
+    }
+
+    function removeRow(rowID){
+        let table = document.getElementById("products")
+        table.deleteRow(rowID)
+
+        // Go through the table and update the line IDs
+        for(let i = rowID; i < table.rows.length; i++){
+            table.rows[i].cells[0].innerText = i
+            table.rows[i].cells[4].innerHTML = `<button onClick="removeRow(${i})">x</button>`
+        }
+    }
+
+    function submit(){
+        let post_data = {
+            "id": document.getElementById("ID").value,
+            "date": getDate(),
+            "creator": document.getElementById("creator").value,
+            "approver": document.getElementById("approver").value,
+            "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
+            "return_addr": [
+                document.getElementById("RA1").value,
+                document.getElementById("RA2").value,
+                document.getElementById("RA3").value,
+                document.getElementById("RA4").value],
+            "li": [
+                
+            ],
+            "tax": formatPrice(document.getElementById("taxes").value),
+            "fees": formatPrice(document.getElementById("fees").value),
+            "total": formatPrice(document.getElementById("total").value),
+            "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : "pending"
+        }
+
+        let table = document.getElementById("products")
+        for(let i = 1; i < table.rows.length; i++){
+            let item = {
+                "line": i,
+                "desc": document.getElementById(`prod${i}`).value,
+                "ammt": formatPrice(document.getElementById(`price${i}`).value),
+                "qty": document.getElementById(`qty${i}`).value,
+                "total": formatPrice(document.getElementById(`price${i}`).value * document.getElementById(`qty${i}`).value)
+            }
+            post_data.li.push(item)
+        }
+        console.log(post_data)
+        let xhr = new XMLHttpRequest()
+        xhr.open("PATCH", "/edit/{{id}}")
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.send(JSON.stringify(post_data))
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == 4){
+                if(xhr.status == 201){
+                    alert("Record Updated")
+                    window.location.href = "/"
+                } else{
+                    alert("Error Updating Record")
+                }
+            }
+        }
+        function getDate(){
+            let date = new Date(document.getElementById("createDate").value)
+            // Format the date as DD MMM YYYY
+
+            let month = date.getMonth()
+            let day = date.getDate()
+            let year = date.getFullYear()
+            let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+            return `${day} ${months[month]}, ${year}`
+        }
+
+        function formatPrice(price){
+            let dollars = `${price}`.split(".")[0]
+            let cents = `${price}`.split(".")[1]
+            if(cents == undefined){
+                cents = "00"
+            }
+            if(cents.length == 1){
+                cents += "0"
+            }
+            return `${dollars}.${cents}`
+        }
+    }
+    </script>
+</head>
+<body onload="updateBoxes()">
+    <h1>Edit Record {{id}}</h1>
+    <fieldset id="RAddr">
+        <legend>Remit Address</legend>
+        <input type="text" id="RA1"> <br>
+        <input type="text" id="RA2"> <br>
+        <input type="text" id="RA3"> <br>
+        <input type="text" id="RA4">
+    </fieldset>
+    <fieldset id="Type">
+        <legend>Record Type</legend>
+        <input type="radio" id="IT1" onclick="UpdateApproverBox()" name="IT"> Invoice <br>
+        <input type="radio" id="IT2" onclick="UpdateApproverBox()" name="IT"> Credit Invoice <br>
+        <input type="radio" id="IT3" onclick="UpdateApproverBox()" name="IT"> SGA Budget Request
+    </fieldset>
+    <fieldset>
+        <legend>Record Settings</legend>
+        <label for="ID">Record ID</label>
+        <input type="text" name="ID" id="ID" disabled> <br>
+        <label for="creator">Created By:</label>
+        <input type="text" id="creator" disabled><br>
+        <label for="approver">Approved By:</label>
+        <input type="text" id="approver" disabled><br>
+        <label for="createDate">Creation Date</label>
+        <input type="date" name="createDate" id="createDate">
+    </fieldset>
+    <fieldset>
+        <legend>Status</legend>
+        <input type="radio" name="statusSelect" id="S1">Open<br/>
+        <input type="radio" name="statusSelect" id="S2">Paid<br/>
+        <input type="radio" name="statusSelect" id="S3">Closed<br/>
+        <input type="radio" name="statusSelect" id="S4">Granted<br/>
+        <input type="radio" name="statusSelect" id="S5">Pending<br/>
+    </fieldset>
+    <fieldset>
+        <legend>Items</legend>
+        <table id="products">
+            <tr>
+                <th>Line</th>
+                <th>Item Description</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Remove</th>
+            </tr>
+        </table>
+        <button onclick="AddRow()">Add Line</button> <br>
+        <label for="taxes">Taxes:</label>
+        <input type="text" id="taxes" onChange="updateTotal()"> <br>
+        <label for="fees">Fees:</label>
+        <input type="text" id="fees" onChange="updateTotal()"> <br>
+        <label for="total">Total:</label>
+        <input type="text" id="total" disabled>
+    </fieldset>
+    <button onclick="submit()">Update Invoice</button>
+</body>
+
+<style>
+    html{
+        background: gray;
+    }
+</style>
+</html>

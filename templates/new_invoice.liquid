@@ -10,15 +10,158 @@
                 let approve_box = document.getElementById("approver")
                 approve_box.value = "SGA Finance Board"
                 approve_box.disabled = true;
+                document.getElementById("RA1").value = ""
+                document.getElementById("RA2").value = ""
+                document.getElementById("RA3").value = ""
+                document.getElementById("RA4").value = ""
+
+                document.getElementById("RA1").disabled = true
+                document.getElementById("RA2").disabled = true
+                document.getElementById("RA3").disabled = true
+                document.getElementById("RA4").disabled = true
+
+
             } else{
                 let approve_box = document.getElementById("approver")
                 approve_box.value = ""
                 approve_box.disabled = false;
+
+                document.getElementById("RA1").disabled = false
+                document.getElementById("RA2").disabled = false
+                document.getElementById("RA3").disabled = false
+                document.getElementById("RA4").disabled = false
+            }
+        }
+
+        function UpdateBoxes(){
+            let now = new Date()
+            let month = now.getMonth()
+            let day = now.getDate()
+            let year = now.getFullYear()
+
+            document.getElementById("createDate").value = `${year}-${month}-${day}`
+        }
+
+        function getDate(){
+            let date = new Date(document.getElementById("createDate").value)
+            // Format the date as DD MMM YYYY
+
+            let month = date.getMonth()
+            let day = date.getDate()
+            let year = date.getFullYear()
+            let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+            return `${day} ${months[month]}, ${year}`
+        }
+
+        function formatPrice(price){
+            let dollars = `${price}`.split(".")[0]
+            let cents = `${price}`.split(".")[1]
+            if(cents == undefined){
+                cents = "00"
+            }
+            if(cents.length == 1){
+                cents += "0"
+            }
+            return `${dollars}.${cents}`
+        }
+
+        function submit(){
+            let post_data = {
+                "id": document.getElementById("ID").value,
+                "date": getDate(),
+                "creator": document.getElementById("creator").value,
+                "approver": document.getElementById("approver").value,
+                "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
+                "return_addr": [
+                    document.getElementById("RA1").value,
+                    document.getElementById("RA2").value,
+                    document.getElementById("RA3").value,
+                    document.getElementById("RA4").value],
+                "li": [
+                    
+                ],
+                "tax": formatPrice(document.getElementById("taxes").value),
+                "fees": formatPrice(document.getElementById("fees").value),
+                "total": formatPrice(document.getElementById("total").value),
+                "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : "pending"
+            }
+
+            let table = document.getElementById("products")
+            for(let i = 1; i < table.rows.length; i++){
+                let item = {
+                    "line": i,
+                    "desc": document.getElementById(`prod${i}`).value,
+                    "ammt": formatPrice(document.getElementById(`price${i}`).value),
+                    "qty": document.getElementById(`qty${i}`).value,
+                    "total": formatPrice(document.getElementById(`price${i}`).value * document.getElementById(`qty${i}`).value)
+                }
+                post_data.li.push(item)
+            }
+            console.log(post_data)
+            let xhr = new XMLHttpRequest()
+            xhr.open("POST", "/new/")
+            xhr.setRequestHeader("Content-Type", "application/json")
+            xhr.send(JSON.stringify(post_data))
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4){
+                    if(xhr.status == 201){
+                        alert("Record Created")
+                        window.location.href = "/"
+                    } else{
+                        alert("Error Creating Record")
+                    }
+                }
+            }
+        }
+
+        function AddRow(){
+            let table = document.getElementById("products")
+            let row = table.insertRow()
+            let rowID = table.rows.length - 1
+            row.insertCell().innerText = rowID
+            row.insertCell().innerHTML = `<input type="text" id="prod${rowID}">`
+            row.insertCell().innerHTML = `<input type="text" id="price${rowID}" onChange="updateTotal()">`
+            row.insertCell().innerHTML = `<input type="text" id="qty${rowID}" onChange="updateTotal()">`
+            row.insertCell().innerHTML = `<button onClick="removeRow(${rowID})">x</button>`
+
+        }
+
+        function updateTotal(){
+            // Iterate through the table and calculate the total
+            let table = document.getElementById("products")
+            let total = 0
+            for(let i = 1; i < table.rows.length; i++){
+                console.error(i)
+                let price = parseFloat(document.getElementById(`price${i}`).value)
+                let qty = parseFloat(document.getElementById(`qty${i}`).value)
+                
+                total += isNaN(price) || isNaN(qty) ? 0 : price * qty
+            }
+            // Add on the taxes and fees
+            let tax = parseFloat(document.getElementById("taxes").value)
+            let fees = parseFloat(document.getElementById("fees").value)
+
+            total += isNaN(tax) ? 0 : tax
+            total += isNaN(fees) ? 0 : fees
+
+            // Update the total box
+            document.getElementById("total").value = total
+
+        }
+
+        function removeRow(rowID){
+            let table = document.getElementById("products")
+            table.deleteRow(rowID)
+
+            // Go through the table and update the line IDs
+            for(let i = rowID; i < table.rows.length; i++){
+                table.rows[i].cells[0].innerText = i
+                table.rows[i].cells[4].innerHTML = `<button onClick="removeRow(${i})">x</button>`
             }
         }
     </script>
 </head>
-<body>
+<body onload="UpdateBoxes()">
     <h1>New Record</h1>
     <fieldset id="RAddr">
         <legend>Remit Address</legend>
@@ -40,8 +183,38 @@
         <label for="creator">Created By:</label>
         <input type="text" id="creator"><br>
         <label for="approver">Approved By:</label>
-        <input type="text" id="approver">
+        <input type="text" id="approver"><br>
+        <label for="createDate">Creation Date</label>
+        <input type="date" name="createDate" id="createDate">
     </fieldset>
+    <fieldset>
+        <legend>Status</legend>
+        <input type="radio" name="statusSelect" id="S1">Open<br/>
+        <input type="radio" name="statusSelect" id="S2">Paid<br/>
+        <input type="radio" name="statusSelect" id="S3">Closed<br/>
+        <input type="radio" name="statusSelect" id="S4">Granted<br/>
+        <input type="radio" name="statusSelect" id="S5">Pending<br/>
+    </fieldset>
+    <fieldset>
+        <legend>Items</legend>
+        <table id="products">
+            <tr>
+                <th>Line</th>
+                <th>Item Description</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Remove</th>
+            </tr>
+        </table>
+        <button onclick="AddRow()">Add Line</button> <br>
+        <label for="taxes">Taxes:</label>
+        <input type="text" id="taxes" onChange="updateTotal()"> <br>
+        <label for="fees">Fees:</label>
+        <input type="text" id="fees" onChange="updateTotal()"> <br>
+        <label for="total">Total:</label>
+        <input type="text" id="total" disabled>
+    </fieldset>
+    <button onclick="submit()">Create Invoice</button>
 </body>
 <style>
     html{
