@@ -44,6 +44,7 @@
             let year = now.getFullYear()
 
             document.getElementById("createDate").value = `${year}-${month}-${day}`
+            document.getElementById("ID").value = '{{id}}'
         }
 
         function getDate(){
@@ -193,10 +194,10 @@
     </fieldset>
     <fieldset>
         <legend>Status</legend>
-        <input type="radio" name="statusSelect" id="S1">Open<br/>
-        <input type="radio" name="statusSelect" id="S2">Paid<br/>
-        <input type="radio" name="statusSelect" id="S3">Closed<br/>
-        <input type="radio" name="statusSelect" id="S4">Granted<br/>
+        <input type="radio" name="statusSelect" id="S1" onclick="UpdateApproverBox()">Open<br/>
+        <input type="radio" name="statusSelect" id="S2" onclick="UpdateApproverBox()">Paid<br/>
+        <input type="radio" name="statusSelect" id="S3" onclick="UpdateApproverBox()">Closed<br/>
+        <input type="radio" name="statusSelect" id="S4" onclick="UpdateApproverBox()">Granted<br/>
         <input type="radio" name="statusSelect" id="S5" onclick="UpdateApproverBox()">Pending<br/>
     </fieldset>
     <fieldset>

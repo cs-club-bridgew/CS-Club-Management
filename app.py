@@ -17,6 +17,20 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
+def get_next_id():
+    try:
+        items = json.load(open("records.json"))
+    except FileNotFoundError:
+        return "Records File not found! Please contact your systems administrator", 500
+    last_id = 0
+    for item in items:
+        if item.get("type") == "sga_budget":
+            continue
+        last_id = max(
+            last_id,
+            int(item.get("id"))
+        )
+    return str(last_id + 1)
 
 @app.route("/")
 def get_root():
@@ -64,7 +78,7 @@ def get_image():
 def create_inv():
     if request.cookies.get('userID') not in allowed_users:
         return "You are not allowed to access this page", 403
-    return render_template("new_invoice.liquid")
+    return render_template("new_invoice.liquid", id=get_next_id())
 
 
 @app.post("/new/")

@@ -72,7 +72,7 @@
             cell4.innerHTML = `<input type='text' onchange='updateTotal()' id="qty${i+1}">`;
             cell4.firstChild.value = products[i].quantity;
 
-            cell5.innerHTML = `<button onclick="RemoveRow(${i+1})">Remove</button>`;
+            cell5.innerHTML = `<button onclick="RemoveRow(${i+1})">x</button>`;
         }
 
     }
@@ -231,8 +231,8 @@
         <input type="radio" name="statusSelect" id="S1">Open<br/>
         <input type="radio" name="statusSelect" id="S2">Paid<br/>
         <input type="radio" name="statusSelect" id="S3">Closed<br/>
-        <input type="radio" name="statusSelect" id="S4" onchange="updateIfSGA()">Granted<br/>
-        <input type="radio" name="statusSelect" id="S5">Pending<br/>
+        <input type="radio" name="statusSelect" id="S4" onClick="updateIfSGA()">Granted<br/>
+        <input type="radio" name="statusSelect" id="S5" >Pending<br/>
         <input type="radio" name="statusSelect" id="S6">Cancelled<br/>
     </fieldset>
     <fieldset>
