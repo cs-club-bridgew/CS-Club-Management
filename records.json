@@ -34,7 +34,7 @@
     },
     {
         "id": "76995",
-        "date": "27 Nov, 2023",
+        "date": "26 Oct, 2023",
         "creator": "Mila Tamara Giraldo",
         "approver": "SGA Finance Board",
         "type": "sga_budget",
@@ -64,11 +64,17 @@
         "tax": "0.00",
         "fees": "0.00",
         "total": "185.00",
-        "status": "paid"
+        "status": "granted",
+        "return_addr": [
+            "",
+            "",
+            "",
+            ""
+        ]
     },
     {
         "id": "76997",
-        "date": "27 Nov, 2023",
+        "date": "26 Oct, 2023",
         "creator": "Mila Tamara Giraldo",
         "approver": "SGA Finance Board",
         "type": "sga_budget",
@@ -78,19 +84,25 @@
                 "desc": "Sodexo Food Order",
                 "ammt": "180.00",
                 "qty": "1",
-                "total": "150.00"
+                "total": "180.00"
             }
         ],
         "tax": "0.00",
         "fees": "0.00",
         "total": "180.00",
-        "status": "paid"
+        "status": "granted",
+        "return_addr": [
+            "",
+            "",
+            "",
+            ""
+        ]
     },
     {
         "id": "test",
-        "date": "NaN undefined, NaN",
+        "date": "19 Jul, 2023",
         "creator": "Alex Dasneves",
-        "approver": "SGA Finance Board",
+        "approver": "",
         "type": "sga_budget",
         "return_addr": [
             "",
@@ -110,6 +122,39 @@
         "tax": ".00",
         "fees": ".00",
         "total": "10.00",
-        "status": "closed"
+        "status": "cancelled"
+    },
+    {
+        "id": "Test1",
+        "date": "18 Oct, 2023",
+        "creator": "Alex Dasneves",
+        "approver": "Lyra Brown",
+        "type": "invoice",
+        "return_addr": [
+            "Alex Dasneves",
+            "2 Deerfield Lane",
+            "Fairhaven, MA 02719",
+            ""
+        ],
+        "li": [
+            {
+                "line": 1,
+                "desc": "Teletype",
+                "ammt": "400.00",
+                "qty": "1",
+                "total": "400.00"
+            },
+            {
+                "line": 2,
+                "desc": "Hello",
+                "ammt": "2.00",
+                "qty": "1",
+                "total": "2.00"
+            }
+        ],
+        "tax": "20.00",
+        "fees": "0.00",
+        "total": "422.00",
+        "status": "paid"
     }
 ]

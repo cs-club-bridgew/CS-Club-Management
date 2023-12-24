@@ -6,7 +6,7 @@
     <title>New Financial Record</title>
     <script>
         function UpdateApproverBox(){
-            if(document.getElementById("IT3").checked){
+            if(document.getElementById("IT3").checked && !document.getElementById("S5").checked){
                 let approve_box = document.getElementById("approver")
                 approve_box.value = "SGA Finance Board"
                 approve_box.disabled = true;
@@ -21,6 +21,10 @@
                 document.getElementById("RA4").disabled = true
 
 
+            } else if (document.getElementById("IT3").checked && document.getElementById("S5").checked){
+                let approve_box = document.getElementById("approver")
+                approve_box.value = ""
+                approve_box.disabled = true;
             } else{
                 let approve_box = document.getElementById("approver")
                 approve_box.value = ""
@@ -193,7 +197,7 @@
         <input type="radio" name="statusSelect" id="S2">Paid<br/>
         <input type="radio" name="statusSelect" id="S3">Closed<br/>
         <input type="radio" name="statusSelect" id="S4">Granted<br/>
-        <input type="radio" name="statusSelect" id="S5">Pending<br/>
+        <input type="radio" name="statusSelect" id="S5" onclick="UpdateApproverBox()">Pending<br/>
     </fieldset>
     <fieldset>
         <legend>Items</legend>

@@ -50,6 +50,7 @@
     <br>
         <hr class="top1">
         <hr class="top2">
+        <div id="topSpace"></div>
         <h1 class="hr_text">{% if type=="sga_budget" %}
         SGA Budget
         {% else %}
@@ -114,10 +115,13 @@
 <style>
     .paper{
         position: absolute;
-        width: 8.5in;
-        height: 11in;
+        width: 7.5in;
+        height: 10in;
         /*outline: 1px solid black;*/
         padding: .5in
+    }
+    #topSpace{
+        height: 20px;
     }
     .logo{
         width: 2in;
@@ -129,30 +133,32 @@
         right: 1in;
     }
     .top1{
-        border: .03in solid Crimson;
+        border: .01in solid crimson;
+        border-top: .03in solid Crimson;
         margin-bottom: -6px;
     }
     .top2{
         border: .01in solid black;
     }
     h1.hr_text{
+        position:absolute;
         font-style: italic;
         background-color: white;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 23pt;
+        top: 1.57in;
+        text-transform: uppercase;
+        {% comment %} outline: 1px solid black; {% endcomment %}
+        padding: 3px;
+        text-align:center;
         
         {% if type=="sga_budget" %}
-            margin-left: 5in;
-            width: 210px;
-
+            width: 220px;
+            left: 5in;
         {% else %}
-            margin-left: 6in;
             width: 144px;
-
+            left: 6in;
         {% endif %}
-        margin-top: -3.5%;
-        padding-left: 10px;
-        text-transform: uppercase;
     }
     fieldset{
         width: 30%;
@@ -165,6 +171,7 @@
         border: 1px solid black;
         text-align: center;
         border-collapse: collapse;
+        text-transform: capitalize
     }
     tr{
         margin:10px;
@@ -179,15 +186,16 @@
 
     .bot1{
         position: absolute;
-        width: 8.5in;
-        bottom: 100px;
-        border: .03in solid crimson;
+        width: 7.5in;
+        bottom: 0.5in;
+        border: .01in solid crimson;
+        border-top: .03in solid crimson;
         margin-bottom: -6px;
     }
     .bot2{
         position: absolute;
-        width: 8.5in;
-        bottom: 95px;
+        width: 7.5in;
+        bottom: 0.45in;
         margin-bottom: -6px;
         border: .01in solid black;
     }
