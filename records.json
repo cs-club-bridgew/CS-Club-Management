@@ -99,62 +99,43 @@
         ]
     },
     {
-        "id": "test",
-        "date": "19 Jul, 2023",
+        "id": "1",
+        "date": "23 Nov, 2023",
         "creator": "Alex Dasneves",
         "approver": "",
-        "type": "sga_budget",
-        "return_addr": [
-            "",
-            "",
-            "",
-            ""
-        ],
-        "li": [
-            {
-                "line": 1,
-                "desc": "Test",
-                "ammt": "1.00",
-                "qty": "10",
-                "total": "10.00"
-            }
-        ],
-        "tax": ".00",
-        "fees": ".00",
-        "total": "10.00",
-        "status": "cancelled"
-    },
-    {
-        "id": "Test1",
-        "date": "18 Oct, 2023",
-        "creator": "Alex Dasneves",
-        "approver": "Lyra Brown",
         "type": "invoice",
         "return_addr": [
-            "Alex Dasneves",
-            "2 Deerfield Lane",
-            "Fairhaven, MA 02719",
-            ""
+            "Computer Science Club",
+            "Attn: Alex Dasneves",
+            "24 Park Avenue",
+            "Bridgewater, MA 02323"
         ],
         "li": [
             {
                 "line": 1,
-                "desc": "Teletype",
-                "ammt": "400.00",
-                "qty": "1",
-                "total": "400.00"
+                "desc": "Pizza, Cheese",
+                "ammt": "15.79",
+                "qty": "6",
+                "total": "94.74"
             },
             {
                 "line": 2,
-                "desc": "Hello",
-                "ammt": "2.00",
-                "qty": "1",
-                "total": "2.00"
+                "desc": "Ice Water, Per Gallon",
+                "ammt": "2.09",
+                "qty": "2",
+                "total": "4.18"
+            },
+            {
+                "line": 3,
+                "desc": "Brownies, Per Dozen",
+                "ammt": "16.95",
+                "qty": "2",
+                "total": "33.90"
             }
         ],
-        "tax": "20.00",
+        "tax": "0.00",
         "fees": "0.00",
-        "total": "422.00",
-        "status": "paid"
+        "total": "132.82",
+        "status": "pending"
     }
 ]
