@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{id}}</title>
+
+    <script>
+    {% if status=="open" %}
+        alert("Invoice status: Open\nAwaiting Payment.");
+    {% endif %}
+
+    {% if status=="closed" %}
+        alert("Invoice status: Closed");
+    {% endif %}
+    </script>
+
+</head>
+<body>
+    <div class="paper">
+        {% comment %} <img src="https://admissions-fitchburgstate-edu.cdn.technolutions.net/www/images/kisspng-bridgewater-state-university-attleboro-clark-unive-5b01d94fa8ee30_333518441526847823692_A.jpg" class="logo"> {% endcomment %}
+        <img src="/logo" class="logo">
+        <div class="retAddr">
+        <p>
+           {% for item in return_addr %}
+            {{item}} <br />
+           {% endfor %}
+        </p>
+    </div>
+    <br>
+        <hr class="top1">
+        <hr class="top2">
+        <h1 class="hr_text">{% if type=="sga_budget" %}
+        SGA Budget
+        {% else %}
+        Invoice
+        {% endif %}</h1>
+        <table class="InvInfo">
+            <tr>
+                <th>{% if type=="sga_budget" %}
+                    SGA Budget <br>Request ID
+                {% else %}
+                Invoice #
+                {% endif %}</th>
+                <th>Date</th>
+                <th>Created By</th>
+                <th>Approved By</th>
+            </tr>
+            <tr>
+                <td>{{id}}</td>
+                <td>{{date}}</td>
+                <td>{{creator}}</td>
+                <td>{{approver}}</td>
+            </tr>
+        </table>
+        
+        <table class="items">
+            <tr>
+                <th>line</th>
+                <th>Item Description</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+            {% for item in li %}
+                <tr>
+                    <td>{{item.line}}</td>
+                    <td>{{item.desc}}</td>
+                    <td>${{item.ammt}}</td>
+                    <td>{{item.qty}}</td>
+                    <td>${{item.total }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan=3 style="border: 1px solid transparent;border-right: 1px solid black;"></td>
+                <td>Tax</td>
+                <td>${{tax}}</td>
+            </tr>
+            <tr>
+                <td colspan=3 style="border: 1px solid transparent;border-right: 1px solid black;"></td>
+                <td style="border-left: 1px solid black">Fees</td>
+                <td>${{fees}}</td>
+            </tr>
+            <tr>
+                <td colspan=3 style="border: 1px solid transparent;border-right: 1px solid black;"></td>
+                <td>Total</td>
+                <td>${{total}}</td>
+            </tr>
+        </table>
+        <hr class="bot1">
+        <hr class="bot2">
+    </div>
+</body>
+<style>
+    .paper{
+        position: absolute;
+        width: 8.5in;
+        height: 11in;
+        /*outline: 1px solid black;*/
+        padding: .5in
+    }
+    .logo{
+        width: 2in;
+        display: inline
+    }
+    .retAddr{
+        position: absolute;
+        top:.5in;
+        right: 1in;
+    }
+    .top1{
+        border: .03in solid Crimson;
+        margin-bottom: -6px;
+    }
+    .top2{
+        border: .01in solid black;
+    }
+    h1.hr_text{
+        font-style: italic;
+        background-color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 23pt;
+        
+        {% if type=="sga_budget" %}
+            margin-left: 5in;
+            width: 210px;
+
+        {% else %}
+            margin-left: 6in;
+            width: 144px;
+
+        {% endif %}
+        margin-top: -3.5%;
+        padding-left: 10px;
+        text-transform: uppercase;
+    }
+    fieldset{
+        width: 30%;
+    }
+    
+    td{
+        padding: 4px;
+    }
+    table, td, th {
+        border: 1px solid black;
+        text-align: center;
+        border-collapse: collapse;
+    }
+    tr{
+        margin:10px;
+    }
+    .InvInfo{
+        width: 100%;
+    }
+    .items{
+        margin-top: .1in;
+        width: 100%;
+    }
+
+    .bot1{
+        position: absolute;
+        width: 8.5in;
+        bottom: 100px;
+        border: .03in solid crimson;
+        margin-bottom: -6px;
+    }
+    .bot2{
+        position: absolute;
+        width: 8.5in;
+        bottom: 95px;
+        margin-bottom: -6px;
+        border: .01in solid black;
+    }
+    th, td, tr{
+        text-transform: | capitalize;
+
+    }
+</style>
+</html>
