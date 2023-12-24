@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice #{{id}}</title>
+    <title> {% if type=="invoice" %}
+        Invoice
+    {% else %} 
+        {% if type=="sga_budget" %}
+            SGA Budget 
+        {% else %}
+            {%if type=="c_invoice" %}
+                Credit Invoice
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    #{{id}}</title>
 
     <script>
     {% if status=="open" %}
