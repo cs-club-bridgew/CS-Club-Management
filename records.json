@@ -131,11 +131,18 @@
                 "ammt": "16.95",
                 "qty": "2",
                 "total": "33.90"
+            },
+            {
+                "line": 4,
+                "desc": "Covered By SGA: 76995",
+                "ammt": "-150.00",
+                "qty": "1",
+                "total": "-150.00"
             }
         ],
         "tax": "0.00",
         "fees": "0.00",
-        "total": "132.82",
+        "total": "-17.18",
         "status": "pending"
     }
 ]

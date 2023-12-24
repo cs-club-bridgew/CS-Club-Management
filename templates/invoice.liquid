@@ -98,9 +98,17 @@
                 <tr>
                     <td>{{item.line}}</td>
                     <td>{{item.desc}}</td>
-                    <td>${{item.ammt}}</td>
+                    <td>{% if item.ammt[0] == '-' %}
+                        -${{item.ammt | slice: 1, 1000 }}
+                    {% else %}
+                        ${{item.ammt}}
+                    {% endif %}</td>
                     <td>{{item.qty}}</td>
-                    <td>${{item.total }}</td>
+                    <td>{% if item.total[0] == '-' %}
+                        -${{item.total | slice: 1, 1000 }}
+                    {% else %}
+                        ${{item.total}}
+                    {% endif %}</td>
                 </tr>
             {% endfor %}
             {% comment %} <tr style="border-left: 1px solid transparent;">
@@ -119,7 +127,11 @@
             <tr>
                 <td colspan=3 style="border: 1px solid transparent;border-right: 1px solid black;"></td>
                 <td>Total</td>
-                <td>${{total}}</td>
+                <td>{% if total[0] == '-' %}
+                    -${{total | slice: 1, 1000 }}
+                {% else %}
+                    ${{total}}
+                {% endif %}</td>
             </tr>
         </table>
         <hr class="bot1">
