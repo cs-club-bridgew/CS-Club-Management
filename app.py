@@ -10,16 +10,20 @@ app.config.update(
 
 @app.route("/")
 def get_root():
-
-    
-    
-    return render_template("main.liquid")
+    try:
+        items = json.load(open("records.json"))[1:]
+    except FileNotFoundError:
+        return "Records File not found! Please contact your systems administrator", 500
+    return render_template("main.liquid", records=items)
 
 
 @app.route("/new")
 def new_item():
     return ""
 
+@app.route("/view/")
+def return_error_no_view():
+    return "Err: Invoice ID not supplied", 400
 
 @app.route("/view/<ID>")
 def view_item(ID=None):
@@ -39,7 +43,8 @@ def view_item(ID=None):
     
 @app.route('/logo')
 def get_image():
-    
     return send_file("logo.jpg", mimetype='image/gif')
     
-    
+@app.route('/new/')
+def create_inv():
+    return render_template("new_invoice.liquid")

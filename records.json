@@ -64,5 +64,25 @@
         "fees": "0.00",
         "total": "185.00",
         "status": "paid"
+    },
+    {
+        "id": "76997",
+        "date": "27 Nov, 2023",
+        "creator": "Mila Tamara Giraldo",
+        "approver": "SGA Finance Board",
+        "type": "sga_budget",
+        "li": [
+            {
+                "line": 1,
+                "desc": "Sodexo Food Order",
+                "ammt": "180.00",
+                "qty": "1",
+                "total": "150.00"
+            }
+        ],
+        "tax": "0.00",
+        "fees": "0.00",
+        "total": "180.00",
+        "status": "paid"
     }
 ]

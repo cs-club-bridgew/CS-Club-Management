@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Financial Record</title>
+    <script>
+        function UpdateApproverBox(){
+            if(document.getElementById("IT3").checked){
+                let approve_box = document.getElementById("approver")
+                approve_box.value = "SGA Finance Board"
+                approve_box.disabled = true;
+            } else{
+                let approve_box = document.getElementById("approver")
+                approve_box.value = ""
+                approve_box.disabled = false;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>New Record</h1>
+    <fieldset id="RAddr">
+        <legend>Remit Address</legend>
+        <input type="text" id="RA1"> <br>
+        <input type="text" id="RA2"> <br>
+        <input type="text" id="RA3"> <br>
+        <input type="text" id="RA4">
+    </fieldset>
+    <fieldset id="Type">
+        <legend>Record Type</legend>
+        <input type="radio" id="IT1" onclick="UpdateApproverBox()" name="IT"> Invoice <br>
+        <input type="radio" id="IT2" onclick="UpdateApproverBox()" name="IT"> Credit Invoice <br>
+        <input type="radio" id="IT3" onclick="UpdateApproverBox()" name="IT"> SGA Budget Request
+    </fieldset>
+    <fieldset>
+        <legend>Record Settings</legend>
+        <label for="ID">Record ID</label>
+        <input type="text" name="ID" id="ID"> <br>
+        <label for="creator">Created By:</label>
+        <input type="text" id="creator"><br>
+        <label for="approver">Approved By:</label>
+        <input type="text" id="approver">
+    </fieldset>
+</body>
+<style>
+    html{
+        background-color:gray;
+    }
+    #RAddr{
+        width: 25%;
+    }
+    #RA1, #RA2, #RA3, #RA4{
+        width: 97%;
+    }
+    #Type{
+        width: 30%;
+    }
+</style>
+</html>
