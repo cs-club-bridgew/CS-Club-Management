@@ -11,14 +11,19 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script>
-        let last_sort = ""
         function sort(type){
-            if(last_sort==type){
-                last_sort = ""
-                window.location.href = `/?sort=${type}&order=desc`
-            } else {
-                last_sort = type
-                window.location.href = `/?sort=${type}`
+            // Get the last sort type from the URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var lastSort = urlParams.get('sort');
+            // If the last sort type is the same as the current sort type, reverse the sort order
+            if(lastSort == null){
+                window.location.href = "/?sort=" + type;
+            }
+            else if(lastSort == type){
+                window.location.href = "/?sort=" + type + "&order=desc";
+            }
+            else{
+                window.location.href = "/?sort=" + type;
             }
         }
     </script>
@@ -29,9 +34,9 @@
         <tr>
             <th onclick="sort('id')">Item ID</th>
             <th  onclick="sort('type')">Record Type</th>
-            <th  onclick="sort('create')">Created By</th>
+            <th  onclick="sort('creator')">Created By</th>
             <th  onclick="sort('status')">Status</th>
-            <th  onclick="sort('item')">Items</th>
+            <th  onclick="sort('item_count')">Items</th>
             <th  onclick="sort('total')">Total</th>
         </tr>
     {% for item in records %}

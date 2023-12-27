@@ -41,6 +41,14 @@ def get_root():
         items = json.load(open("records.json"))[1:]
     except FileNotFoundError:
         return "Records File not found! Please contact your systems administrator", 500
+    # Get the name of the column to sort by
+    sort_by = request.args.get("sort", "id")
+    is_asc = request.args.get("order", "asc") == "asc"
+    if sort_by == "item_count":
+        items = sorted(items, key=lambda x: len(x.get("li")), reverse=not is_asc)    
+    else:
+        items = sorted(items, key=lambda x: x.get(sort_by), reverse=not is_asc)
+    
     return render_template("main.liquid", records=items)
 
 @app.route("/view/")
