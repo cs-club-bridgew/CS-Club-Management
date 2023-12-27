@@ -6,19 +6,33 @@
     <title>Computer Science Club Finances</title>
     <!-- meta refresh -->
     <meta http-equiv="refresh" content="10">
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        let last_sort = ""
+        function sort(type){
+            if(last_sort==type){
+                last_sort = ""
+                window.location.href = `/?sort=${type}&order=desc`
+            } else {
+                last_sort = type
+                window.location.href = `/?sort=${type}`
+            }
+        }
+    </script>
 </head>
 <body>
     <button onclick="window.location.href='/new/'">New Finance Record</button>
     <table class="MainTable">
         <tr>
-            <th>Item ID</th>
-            <th>Record Type</th>
-            <th>Created By</th>
-            <th>Status</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>View</th>
-            <th>Edit</th>
+            <th onclick="sort('id')">Item ID</th>
+            <th  onclick="sort('type')">Record Type</th>
+            <th  onclick="sort('create')">Created By</th>
+            <th  onclick="sort('status')">Status</th>
+            <th  onclick="sort('item')">Items</th>
+            <th  onclick="sort('total')">Total</th>
         </tr>
     {% for item in records %}
         <tr>
