@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, make_response
 from flask_liquid import Liquid, render_template
 import json
 import re
@@ -136,4 +136,16 @@ def edit_inv_post(ID=None):
     # write the data to the file
     json.dump(items, open("records.json", "w"), indent=4)
     # return the ID
-    return "Record edited with ID: {}".format(data.get("id")), 201
+    return f"Record edited with ID: {data.get('id')}", 201
+
+
+@app.route("/set_user/<ID>")
+def set_user(ID=None):
+    if ID is None:
+        return "User ID not supplied", 400
+    if ID not in allowed_users:
+        return "User ID not allowed", 403
+    resp = make_response(f"User ID set to {ID}")
+    resp.set_cookie('userID', ID)
+    
+    return resp, 200
