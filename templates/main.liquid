@@ -38,6 +38,7 @@
             <th  onclick="sort('status')">Status</th>
             <th  onclick="sort('item_count')">Items</th>
             <th  onclick="sort('total')">Total</th>
+            <th>Options</th>
         </tr>
     {% for item in records %}
         <tr>
@@ -72,6 +73,9 @@
         border-collapse: collapse;
         border: 1px solid black;
         text-transform: capitalize;
+    }
+    th{
+        cursor: pointer;
     }
 </style>
 </html>
