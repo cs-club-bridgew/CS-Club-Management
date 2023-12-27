@@ -59,8 +59,7 @@
             <td>{{item.status}}</td>
             <td>{{item.li | size}}</td>
             <td>{{item.total}}</td>
-            <td><button onclick="window.open('/view/{{item.id}}')">Open</button></td>
-            <td><button onclick="window.open('/edit/{{item.id}}')">Edit</button></td>
+            <td><button onclick="window.open('/view/{{item.id}}')">Open</button><button onclick="window.open('/edit/{{item.id}}')">Edit</button></td>
         </tr>
     {% endfor %}
     </table>
