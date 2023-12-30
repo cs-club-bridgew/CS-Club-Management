@@ -59,7 +59,18 @@ def get_root():
                        reverse=not is_asc)
     else:
         items = sorted(items, key=lambda x: x.get(sort_by), reverse=not is_asc)
+        
+        
+    # Get filters
+    exclude_types = request.args.get("excludeType", "").split(",")
+    exclude_status = request.args.get("excludeStatus", "").split(",")
 
+    for item in items[::-1]:
+        if item.get("type") in exclude_types:
+            items.remove(item)
+        if item.get("status") in exclude_status:
+            items.remove(item)
+        
     return render_template("main.liquid", records=items)
 
 
@@ -171,7 +182,11 @@ def set_user(ID=None):
         return "User ID not supplied", 400
     if ID not in allowed_users:
         return "User ID not allowed", 403
-    resp = make_response(f"User ID set to {ID}")
+    resp = make_response(render_template("UserID.liquid", id=ID))
     resp.set_cookie('userID', ID)
 
     return resp, 200
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_file("favicon.ico", mimetype='image/gif')

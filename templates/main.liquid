@@ -5,39 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Computer Science Club Finances</title>
     <!-- meta refresh -->
-    <meta http-equiv="refresh" content="10">
+    <!-- <meta http-equiv="refresh" content="10"> -->
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script>
+
+        (function(seconds) {
+            var refresh,       
+                intvrefresh = function() {
+                    clearInterval(refresh);
+                    refresh = setTimeout(function() {
+                       location.href = location.href;
+                    }, seconds * 1000);
+                };
+        
+            $(document).on('keypress click', function() { intvrefresh() });
+            intvrefresh();
+        
+        }(15)); // define here seconds
+
+
+        function onLoad(){
+            let checkboxes = document.querySelectorAll("input[type=checkbox]");
+            checkboxes.forEach( elt => {
+                elt.checked = true;
+            })
+
+            // Get the last sort type from the URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var lastSort = urlParams.get('sort');
+            var lastOrder = urlParams.get('order');
+
+            // Get the current filters from the header
+            var excludeType = urlParams.get('excludeType');
+            var excludeStatus = urlParams.get('excludeStatus');
+        
+            // For each item in excludeType, uncheck the corresponding checkbox
+            if(excludeType != null){
+                excludeType = excludeType.split(",");
+                excludeType.forEach( elt => {
+                    document.getElementById(elt).checked = false;
+                })
+            }
+
+            if(excludeStatus != null){
+                excludeStatus = excludeStatus.split(",");
+                excludeStatus.forEach( elt => {
+                    document.getElementById(elt).checked = false;
+                })
+            }
+        }
+
         function sort(type){
             // Get the last sort type from the URL parameters
             var urlParams = new URLSearchParams(window.location.search);
             var lastSort = urlParams.get('sort');
-            // If the last sort type is the same as the current sort type, reverse the sort order
-            if(lastSort == null){
-                window.location.href = "/?sort=" + type;
+            var lastOrder = urlParams.get('order');
+
+            if(lastOrder == null){
+                lastOrder = "asc";
             }
-            else if(lastSort == type){
-                window.location.href = "/?sort=" + type + "&order=desc";
+            if (lastSort == null){
+                lastSort = "id";
             }
-            else{
-                window.location.href = "/?sort=" + type;
+
+            // Get the current filters from the header
+            var excludeType = urlParams.get('excludeType');
+            var excludeStatus = urlParams.get('excludeStatus');
+
+            // Apply the sort
+            lastOrder = (lastOrder == "asc") ? "desc" : "asc";
+            window.location.href = "/?sort=" + type + "&order=" + lastOrder + "&excludeType=" + excludeType + "&excludeStatus=" + excludeStatus;
+        }
+
+        function filter(){
+            // Get the last sort type from the URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var lastSort = urlParams.get('sort');
+            var lastOrder = urlParams.get('order');
+
+            if(lastOrder == null){
+                lastOrder = "asc";
             }
+            if (lastSort == null){
+                lastSort = "id";
+            }
+
+            // Get the current filters from the header
+            var excludeType = urlParams.get('excludeType');
+            var excludeStatus = urlParams.get('excludeStatus');
+
+            // Get the current filter values
+            var type = [];
+            var status = [];
+            var checkboxes = document.querySelectorAll("input[type=checkbox]");
+            checkboxes.forEach( elt => {
+                if(!elt.checked){
+                    if(elt.id == "invoice" || elt.id == "c_invoice" || elt.id == "sga_budget"){
+                        type.push(elt.id);
+                    }
+                    else{
+                        status.push(elt.id);
+                    }
+                }
+            })
+
+            // Apply the filters
+            window.location.href = "/?sort=" + lastSort + "&order=" + lastOrder + "&excludeType=" + type + "&excludeStatus=" + status;
         }
     </script>
 </head>
-<body>
+<body onload="onLoad()">
+    <!-- Add filters -->
+    <fieldset>
+        <legend>Filters</legend>
+        <fieldset>
+            <legend>Status</legend>
+            <input type="checkbox" name="pending" id="pending">
+            <label for="pending">Pending</label> <br>
+
+            <input type="checkbox" name="open" id="open">
+            <label for="open">Open</label> <br>
+
+            <input type="checkbox" name="granted" id="granted">
+            <label for="granted">Granted</label> <br>
+
+            <input type="checkbox" name="paid" id="paid">
+            <label for="paid">Paid</label> <br>
+
+            <input type="checkbox" name="closed" id="closed">
+            <label for="closed">Closed</label> <br>
+
+            <input type="checkbox" name="cancelled" id="cancelled">
+            <label for="cancelled">Cancelled</label> <br>
+        </fieldset>
+        <fieldset>
+            <legend>Type</legend>
+            <input type="checkbox" name="invoice" id="invoice">
+            <label for="invoice">Invoice</label> <br>
+            <input type="checkbox" name="c_invoice" id="c_invoice">
+            <label for="c_invoice">Credit Invoice</label> <br>
+            <input type="checkbox" name="sga_budget" id="sga_budget">
+            <label for="sga_budget">SGA Budget Request</label> <br>
+        </fieldset>
+        <button onclick="filter()">Apply Filters</button>
+    </fieldset>
     <button onclick="window.location.href='/new/'">New Finance Record</button>
     <table class="MainTable">
         <tr>
             <th onclick="sort('id')">Item ID</th>
-            <th  onclick="sort('type')">Record Type</th>
-            <th  onclick="sort('creator')">Created By</th>
-            <th  onclick="sort('status')">Status</th>
-            <th  onclick="sort('item_count')">Items</th>
-            <th  onclick="sort('total')">Total</th>
+            <th onclick="sort('type')">Record Type</th>
+            <th onclick="sort('creator')">Created By</th>
+            <th onclick="sort('status')">Status</th>
+            <th onclick="sort('item_count')">Items</th>
+            <th onclick="sort('total')">Total</th>
             <th>Options</th>
         </tr>
     {% for item in records %}
@@ -74,7 +197,7 @@
         border: 1px solid black;
         text-transform: capitalize;
     }
-    th{
+    th, label, input{
         cursor: pointer;
     }
 </style>
