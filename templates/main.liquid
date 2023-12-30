@@ -46,14 +46,20 @@
             if(excludeType != null){
                 excludeType = excludeType.split(",");
                 excludeType.forEach( elt => {
-                    document.getElementById(elt)?.checked = false;
+                    let box = document.getElementById(elt);
+                    if(box != null){
+                        box.checked = false;
+                    }
                 })
             }
 
             if(excludeStatus != null){
                 excludeStatus = excludeStatus.split(",");
                 excludeStatus.forEach( elt => {
-                    document.getElementById(elt)?.checked = false;
+                    let box = document.getElementById(elt);
+                    if(box != null){
+                        box.checked = false;
+                    }
                 })
             }
         }
