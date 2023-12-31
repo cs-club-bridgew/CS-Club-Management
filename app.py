@@ -1,6 +1,7 @@
 from flask import Flask, request, send_file, make_response
 from flask_liquid import Liquid, render_template
-import json
+from db_conn import connect
+from sqlite3 import DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError
 
 allowed_users = [
     "e19202b7da58a905db8c47f18774060a271a75c81e27dec05a2c5ffd195d3ec1c330a95" +
@@ -23,22 +24,10 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
+db = connect("csclub-bridgew.mysql.database.azure.com", "invoices", "rmPkM8d90Z\"N", "invoices")
 
 def get_next_id():
-    try:
-        items = json.load(open("records.json"))
-    except FileNotFoundError:
-        return "Records File not found! Please contact your " + \
-               "systems administrator", 500
-    last_id = 0
-    for item in items:
-        if item.get("type") == "sga_budget":
-            continue
-        last_id = max(
-            last_id,
-            int(item.get("id"))
-        )
-    return str(last_id + 1)
+    return db.get_next_invoice_id()
 
 
 @app.route("/")
@@ -46,7 +35,7 @@ def get_root():
     if request.cookies.get('userID') not in allowed_users:
         return "You are not allowed to access this page", 403
     try:
-        items = json.load(open("records.json"))[1:]
+        items = db.get_records()
     except FileNotFoundError:
         return "Records File not found!" + \
                " Please contact your systems administrator", 500
@@ -74,12 +63,6 @@ def get_root():
     return render_template("main.liquid", records=items)
 
 
-@app.route("/view/")
-def return_error_no_view():
-    if request.cookies.get('userID') not in allowed_users:
-        return "You are not allowed to access this page", 403
-    return "Err: Invoice ID not supplied", 400
-
 
 @app.route("/view/<ID>")
 def view_item(ID=None):
@@ -87,14 +70,13 @@ def view_item(ID=None):
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
-    try:
-        items = json.load(open("records.json"))
-    except FileNotFoundError:
-        return "Records File not found!" + \
-               " Please contact your systems administrator", 500
-
+    
+    items = db.get_records()
+    print(items)
+    
     for item in items:
-        if ID == item.get("id"):
+        print(item)
+        if ID == str(item.get("id")):
             return render_template("invoice.liquid", **item)
 
     return "Item not found!", 404
@@ -118,17 +100,20 @@ def create_inv():
 def create_inv_post():
     if request.cookies.get('userID') not in allowed_users:
         return "You are not allowed to access this page", 403
-    try:
-        items = json.load(open("records.json"))
-    except FileNotFoundError:
-        return "Records File not found!" + \
-            " Please contact your systems administrator", 500
+    
     # get the data from the json body
     data = request.get_json()
     # add the data to the items list
-    items.append(data)
-    # write the data to the file
-    json.dump(items, open("records.json", "w"), indent=4)
+    try:
+        db.create_record(**data)
+        lines = data.get("li")
+        # update the lines, and add new ones if needed
+        for lineIDX, line in enumerate(lines):
+            print(lineIDX + 1, line)
+            
+            db.create_line(data.get("id"), lineIDX + 1, **line)
+    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError) as e:
+        return f"Error: {e}", 500
     # return the ID
     return "Record created with ID: {}".format(data.get("id")), 201
 
@@ -140,13 +125,14 @@ def edit_inv(ID=None):
     if ID is None:
         return "Invoice ID not supplied", 400
     try:
-        items = json.load(open("records.json"))
+        items = db.get_records()
     except FileNotFoundError:
         return "Records File not found!" + \
                " Please contact your systems administrator", 500
 
     for item in items:
         if ID == item.get("id"):
+            print(item)
             return render_template("edit_invoice.liquid", **item)
 
     return "Item not found!", 404
@@ -158,24 +144,22 @@ def edit_inv_post(ID=None):
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
-    try:
-        items = json.load(open("records.json"))
-    except FileNotFoundError:
-        return "Records File not found!" + \
-               " Please contact your systems administrator", 500
     # get the data from the json body
     data = request.get_json()
     # add the data to the items list
-    for item in items:
-        if ID == item.get("id"):
-            for key, value in data.items():
-                item[key] = value
-    # write the data to the file
-    json.dump(items, open("records.json", "w"), indent=4)
-    # return the ID
-    return f"Record edited with ID: {data.get('id')}", 201
-
-
+    try:
+        db.update_record(**data)
+        lines = data.get("li")
+        # update the lines, and add new ones if needed
+        for lineIDX, line in enumerate(lines):
+            print(lineIDX + 1, line)
+            
+            db.update_line(ID, lineIDX + 1, **line)
+        # return the ID
+        return f"Record edited with ID: {data.get('id')}", 201
+    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError) as e:
+        return f"Error: {e}", 500
+    
 @app.route("/set_user/<ID>")
 def set_user(ID=None):
     if ID is None:
