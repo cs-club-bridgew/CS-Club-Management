@@ -53,6 +53,7 @@
                 document.getElementById("RA3").disabled = false
                 document.getElementById("RA4").disabled = false
             }
+        }
     function updateBoxes(){
         document.getElementById("RA1").value = "{{return_addr[0]}}";
         document.getElementById("RA2").value = "{{return_addr[1]}}";
@@ -212,6 +213,61 @@
         return `${day} ${months[month]}, ${year}`
     }
 
+    function preview(){
+
+        if(getDate() == "NaN undefined, NaN"){
+            alert("Please enter a valid date")
+            return
+        }
+
+        let post_data = {
+            "id": document.getElementById("ID").value,
+            "date": getDate(),
+            "creator": document.getElementById("creator").value,
+            "approver": document.getElementById("approver").value,
+            "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
+            "return_addr": [
+                document.getElementById("RA1").value,
+                document.getElementById("RA2").value,
+                document.getElementById("RA3").value,
+                document.getElementById("RA4").value],
+            "li": [
+                
+            ],
+            "tax": formatPrice(document.getElementById("taxes").value),
+            "fees": formatPrice(document.getElementById("fees").value),
+            "total": formatPrice(document.getElementById("total").value),
+            "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : document.getElementById("S5").checked ? "pending" : "cancelled"
+        }
+
+        let table = document.getElementById("products")
+        for(let i = 1; i < table.rows.length; i++){
+            let item = {
+                "line": i,
+                "desc": document.getElementById(`prod${i}`).value,
+                "ammt": formatPrice(document.getElementById(`price${i}`).value),
+                "qty": document.getElementById(`qty${i}`).value,
+                "total": formatPrice(document.getElementById(`price${i}`).value * document.getElementById(`qty${i}`).value)
+            }
+            post_data.li.push(item)
+        }
+        let xhr = new XMLHttpRequest()
+        xhr.open("POST", "/preview")
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.send(JSON.stringify(post_data))
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == 4){
+                if(xhr.status == 200){
+                    let win = window.open("", "Preview", "width=800,height=600")
+                    win.document.write(xhr.responseText)
+                } else{
+                    alert("Error Previewing Record")
+                }
+            }
+        }
+
+    }
+
     function formatPrice(price){
         let dollars = `${price}`.split(".")[0]
         let cents = `${price}`.split(".")[1]
@@ -290,7 +346,8 @@
         <label for="total">Total:</label>
         <input type="text" id="total" disabled>
     </fieldset>
-    <button onclick="submit()">Update Invoice</button>
+    <button onclick="submit()">Update</button>
+    <button onclick="preview()">Preview</button>
 </body>
 
 <style>

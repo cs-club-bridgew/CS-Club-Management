@@ -189,3 +189,11 @@ def set_user(ID=None):
 @app.route("/favicon.ico")
 def favicon():
     return send_file("favicon.ico", mimetype='image/gif')
+
+
+@app.post("/preview")
+def preview():
+    if request.cookies.get('userID') not in allowed_users:
+        return "You are not allowed to access this page", 403
+    data = request.get_json()
+    return render_template("invoice.liquid", **data)
