@@ -23,6 +23,36 @@
             row.insertCell().innerHTML = `<button onClick="removeRow(${rowID})">x</button>`
 
         }
+        function UpdateApproverBox(){
+            if(document.getElementById("IT3").checked && !document.getElementById("S5").checked){
+                let approve_box = document.getElementById("approver")
+                approve_box.value = "SGA Finance Board"
+                approve_box.disabled = true;
+                document.getElementById("RA1").value = ""
+                document.getElementById("RA2").value = ""
+                document.getElementById("RA3").value = ""
+                document.getElementById("RA4").value = ""
+
+                document.getElementById("RA1").disabled = true
+                document.getElementById("RA2").disabled = true
+                document.getElementById("RA3").disabled = true
+                document.getElementById("RA4").disabled = true
+
+
+            } else if (document.getElementById("IT3").checked && document.getElementById("S5").checked){
+                let approve_box = document.getElementById("approver")
+                approve_box.value = ""
+                approve_box.disabled = true;
+            } else{
+                let approve_box = document.getElementById("approver")
+                approve_box.value = ""
+                approve_box.disabled = false;
+
+                document.getElementById("RA1").disabled = false
+                document.getElementById("RA2").disabled = false
+                document.getElementById("RA3").disabled = false
+                document.getElementById("RA4").disabled = false
+            }
     function updateBoxes(){
         document.getElementById("RA1").value = "{{return_addr[0]}}";
         document.getElementById("RA2").value = "{{return_addr[1]}}";
@@ -32,7 +62,7 @@
         document.getElementById("creator").value = "{{creator}}";
         document.getElementById("approver").value = "{{approver}}";
         let date = new Date("{{date}}")
-        document.getElementById("createDate").value = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? 0 : ""}${date.getMonth()+1}-${date.getDate()}`;
+        document.getElementById("createDate").value = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? 0 : ""}${date.getMonth()+1}-${date.getDate()+1 < 10 ? 0 : ""}${date.getDate()}`;
         document.getElementById("S1").checked = "{{status}}" == "open";
         document.getElementById("S2").checked = "{{status}}" == "paid";
         document.getElementById("S3").checked = "{{status}}" == "closed";

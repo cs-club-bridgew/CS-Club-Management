@@ -2,6 +2,7 @@ from flask import Flask, request, send_file, make_response
 from flask_liquid import Liquid, render_template
 from db_conn import connect
 from sqlite3 import DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError
+from db_config import db_settings
 
 allowed_users = [
     "e19202b7da58a905db8c47f18774060a271a75c81e27dec05a2c5ffd195d3ec1c330a95" +
@@ -24,12 +25,7 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
-db_settings = {
-    "host": "csclub-bridgew.mysql.database.azure.com",
-    "user": "invoices",
-    "passwd": "rmPkM8d90Z\"N",
-    "db": "invoices"
-}
+
 
 # db = connect("csclub-bridgew.mysql.database.azure.com", "invoices", "rmPkM8d90Z\"N", "invoices")
 
