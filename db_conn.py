@@ -1,5 +1,6 @@
 import mysql.connector
 from typing import List
+import datetime
 
 
 class connect:
@@ -36,29 +37,33 @@ class connect:
                       approver: str, type: str, 
                       return_addr: List[str], 
                       tax: float | int, fees: float | int, 
-                      status: str, total: float | int, date: str) -> int:
+                      status: str, total: float | int, date: str, li: List) -> int:
         sql = """
         insert into record (id, createdDate, creator, approver, recordType, return_addr, tax, fees, total, statusID)
         values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
+        print(total)
         addr_id = self.validate_address(return_addr)
         status_id = self.get_status_id(status)
-        val = (id, date, creator, approver, type, addr_id, tax, fees, total, status_id)
+        val = (id, getDateObj(date), creator, approver, type, addr_id, tax, fees, total, status_id)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.lastrowid
 
-    def create_item(self, record_id: int, item: str, quantity: int, price: float | int) -> int:
+    def create_item(self, record_id, **line_data) -> int:
         # Get the current list of items
-        self.mycursor.execute(f"SELECT * FROM items WHERE record_id = {record_id}")
+        self.mycursor.execute(f"SELECT * FROM inv_line WHERE recordID = {record_id}")
         myresult = self.mycursor.fetchall()
-        # Get the next id
-        if len(myresult) == 0:
-            id = 1
-        else:
-            id = max([x[0] for x in myresult]) + 1
-        sql = "INSERT INTO items (recordID, line, desc, ammt, qty, total) VALUES (%s, %s, %s, %s, %s, %s)"
-        val = (record_id, id, item, price, quantity, price * quantity)
+        if line_data.get("line") is None:
+            # Get the next id
+            if len(myresult) == 0:
+                line_data['line'] = 1
+            else:
+                line_data['line'] = max([x[0] for x in myresult]) + 1
+        sql = "INSERT INTO inv_line (recordID, line, `desc`, ammt, qty, total) VALUES (%s, %s, %s, %s, %s, %s)"
+        ammt = float(line_data.get("ammt", 0))
+        qty = float(line_data.get("qty", 0))
+        val = (record_id, line_data['line'], line_data.get("desc"), ammt, qty, ammt * qty)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.lastrowid
@@ -81,7 +86,7 @@ class connect:
         self.mycursor.execute(f"SELECT * FROM statuses WHERE statusDesc = '{status}'")
         myresult = self.mycursor.fetchall()
         if len(myresult) == 0:
-            return self.create_status(status)
+            raise Exception(f"Status {status} not found., SELECT * FROM statuses WHERE statusDesc = '{status}'")
         return myresult[0][0]
     
     def get_status(self, status_id: int) -> str:
@@ -198,7 +203,31 @@ class connect:
         print(sql)
         self.mycursor.execute(sql)
         self.mydb.commit()
-
+        
+    def close(self):
+        self.mydb.commit()
+        self.mydb.close()
 
 def format_date(date: str) -> str:
     return date.strftime("%d %b, %Y")
+
+def getDateObj(date: str) -> datetime.datetime:
+    date_split = date.split()
+    day = int(date_split[0])+1
+    month = date_split[1][:-1]
+    year = int(date_split[2])
+    month_dict = {
+        "Jan": 1,
+        "Feb": 2,
+        "Mar": 3,
+        "Apr": 4,
+        "May": 5,
+        "Jun": 6,
+        "Jul": 7,
+        "Aug": 8,
+        "Sep": 9,
+        "Oct": 10,
+        "Nov": 11,
+        "Dec": 12
+    }
+    return datetime.datetime(year, month_dict[month], day, 0, 0, 0)

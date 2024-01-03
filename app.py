@@ -24,20 +24,32 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
-db = connect("csclub-bridgew.mysql.database.azure.com", "invoices", "rmPkM8d90Z\"N", "invoices")
+db_settings = {
+    "host": "csclub-bridgew.mysql.database.azure.com",
+    "user": "invoices",
+    "passwd": "rmPkM8d90Z\"N",
+    "db": "invoices"
+}
+
+# db = connect("csclub-bridgew.mysql.database.azure.com", "invoices", "rmPkM8d90Z\"N", "invoices")
 
 def get_next_id():
-    return db.get_next_invoice_id()
+    db = connect(**db_settings)
+    next_id = db.get_next_invoice_id()
+    db.close()
+    return next_id
 
 
 @app.route("/")
 def get_root():
+    db = connect(**db_settings)
     if request.cookies.get('userID') not in allowed_users:
         return "You are not allowed to access this page", 403
     try:
         items = db.get_records()
-    except FileNotFoundError:
-        return "Records File not found!" + \
+    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError):
+        db.close()
+        return "A database error has occured!" + \
                " Please contact your systems administrator", 500
     # Get the name of the column to sort by
     sort_by = request.args.get("sort", "id")
@@ -59,7 +71,7 @@ def get_root():
             items.remove(item)
         if item.get("status") in exclude_status:
             items.remove(item)
-        
+    db.close()
     return render_template("main.liquid", records=items)
 
 
@@ -70,9 +82,9 @@ def view_item(ID=None):
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
-    
+    db = connect(**db_settings)
     items = db.get_records()
-    print(items)
+    db.close()
     
     for item in items:
         print(item)
@@ -103,36 +115,37 @@ def create_inv_post():
     
     # get the data from the json body
     data = request.get_json()
+    db = connect(**db_settings)
     # add the data to the items list
     try:
         db.create_record(**data)
+        print(data)
         lines = data.get("li")
         # update the lines, and add new ones if needed
         for lineIDX, line in enumerate(lines):
-            print(lineIDX + 1, line)
-            
-            db.create_line(data.get("id"), lineIDX + 1, **line)
+            db.create_item(data.get("id"), **line)
     except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError) as e:
-        return f"Error: {e}", 500
+        db.close()
+        raise e
     # return the ID
+    db.close()
     return "Record created with ID: {}".format(data.get("id")), 201
 
 
 @app.route("/edit/<ID>")
 def edit_inv(ID=None):
+    db = connect(**db_settings)
     if request.cookies.get('userID') not in allowed_users:
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
     try:
-        items = db.get_records()
+        item = db.get_record_by_id(ID)
     except FileNotFoundError:
         return "Records File not found!" + \
                " Please contact your systems administrator", 500
-
-    for item in items:
-        if ID == item.get("id"):
-            print(item)
+    db.close()
+    if item is not None:
             return render_template("edit_invoice.liquid", **item)
 
     return "Item not found!", 404
@@ -146,6 +159,7 @@ def edit_inv_post(ID=None):
         return "Invoice ID not supplied", 400
     # get the data from the json body
     data = request.get_json()
+    db = connect(**db_settings)
     # add the data to the items list
     try:
         db.update_record(**data)
@@ -156,8 +170,10 @@ def edit_inv_post(ID=None):
             
             db.update_line(ID, lineIDX + 1, **line)
         # return the ID
+        db.close()
         return f"Record edited with ID: {data.get('id')}", 201
     except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError) as e:
+        db.close()
         return f"Error: {e}", 500
     
 @app.route("/set_user/<ID>")
