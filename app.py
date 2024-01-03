@@ -141,6 +141,7 @@ def edit_inv(ID=None):
         return "Invoice ID not supplied", 400
     try:
         item = db.get_record_by_id(ID)
+        print(item)
     except FileNotFoundError:
         return "Records File not found!" + \
                " Please contact your systems administrator", 500

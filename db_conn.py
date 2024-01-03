@@ -177,6 +177,7 @@ class connect:
                 "qty": x[3],
                 "total": x[4]
             })
+        return record
     
     def get_address(self, id: int) -> List[str]:
         if id is None:
