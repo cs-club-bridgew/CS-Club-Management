@@ -178,13 +178,15 @@ def edit_inv_post(ID=None):
     
 @app.route("/set_user/<ID>")
 def set_user(ID=None):
+    db = connect(**db_settings)
     if ID is None:
         return "User ID not supplied", 400
+    allowed_users = db.get_available_users()
     if ID not in allowed_users:
         return "User ID not allowed", 403
     resp = make_response(render_template("UserID.liquid", id=ID))
     resp.set_cookie('userID', ID)
-
+    db.close()
     return resp, 200
 
 @app.route("/favicon.ico")

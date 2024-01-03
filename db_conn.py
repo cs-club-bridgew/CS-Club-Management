@@ -203,7 +203,14 @@ class connect:
         print(sql)
         self.mycursor.execute(sql)
         self.mydb.commit()
-        
+        return self.mycursor.lastrowid
+    
+    def get_available_users(self) -> List[str]:
+        sql = "SELECT * FROM allowedUsers"
+        self.mycursor.execute(sql)
+        myresult = self.mycursor.fetchall()
+        return [x[0] for x in myresult]
+    
     def close(self):
         self.mydb.commit()
         self.mydb.close()
