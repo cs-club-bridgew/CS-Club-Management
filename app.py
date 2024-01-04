@@ -62,11 +62,12 @@ def get_root():
 
 @app.route("/view/<ID>")
 def view_item(ID=None):
+    db = connect(**db_settings)
+    
     if request.cookies.get('userID') not in db.get_available_users():
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
-    db = connect(**db_settings)
     items = db.get_records()
     db.close()
     
