@@ -72,14 +72,32 @@ class connect:
         params = []
         for key, value in data.items():
             if key == "return_addr":
-                value = self.validate_address(value)
+                addr_name = data.get("addr_desc", "")
+                value = self.validate_address(value, addr_name)
+                print(f"Addr: {value}")
+            if key == "total":
+                status = self.get_status_id(data.get("status"))
+                if status == 6:
+                    value = 0
             if key == "status":
                 key='statusID'
                 value = self.get_status_id(value)
-            if key == "creator":
+                if value == 6:
+                    print(f"Status: {repr(value)}")
+                    
+                    data['total'] = 0
+            if key in ["creator", 'li', 'id', 'addr_desc']:
                 continue
-            params.append(f"{key} = '{value}'")
+            if key == "date":
+                key = "createdDate"
+                value = getDateObj(value)
+            if key == "type":
+                key = "recordType"
+            params.append(f"`{key}` = '{value}'")
         sql += ", ".join(params)
+        print(sql)
+        sql += f" WHERE id = {data.get('id')}"
+        self.mycursor.execute(sql)
 
     def get_status_id(self, status: str) -> int:
         self.mycursor.execute(f"SELECT * FROM statuses WHERE statusDesc = '{status}'")

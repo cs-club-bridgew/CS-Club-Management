@@ -33,11 +33,13 @@
                 document.getElementById("RA2").value = ""
                 document.getElementById("RA3").value = ""
                 document.getElementById("RA4").value = ""
+                document.getElementById("addrDropdown").value = "SGA Budget"
 
                 document.getElementById("RA1").disabled = true
                 document.getElementById("RA2").disabled = true
                 document.getElementById("RA3").disabled = true
                 document.getElementById("RA4").disabled = true
+                document.getElementById("addrDropdown").disabled = true
 
 
             } else if (document.getElementById("IT3").checked && document.getElementById("S5").checked){
@@ -48,11 +50,15 @@
                 let approve_box = document.getElementById("approver")
                 approve_box.value = ""
                 approve_box.disabled = false;
-
-                document.getElementById("RA1").disabled = false
-                document.getElementById("RA2").disabled = false
-                document.getElementById("RA3").disabled = false
-                document.getElementById("RA4").disabled = false
+                if(document.getElementById("addrDropdown").value == "SGA Budget"){
+                    document.getElementById("RA1").disabled = false
+                    document.getElementById("RA2").disabled = false
+                    document.getElementById("RA3").disabled = false
+                    document.getElementById("RA4").disabled = false
+                    document.getElementById("addrDropdown").disabled = false
+                
+                    document.getElementById("addrDropdown").value = "New Address"
+                }
             }
         }
 
