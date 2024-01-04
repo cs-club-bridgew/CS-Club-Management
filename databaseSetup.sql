@@ -15,7 +15,7 @@ create table statuses (
 );
 
 create table allowedusers (
-    userID int not null primary key auto_increment,
+    userID varchar(255) not null unique,
 );
 
 create table record (
@@ -43,6 +43,14 @@ create table inv_line (
     total decimal(10,2),
     foreign key (recordID) references record(id) 
 );
+
+
+insert into statuses (`status`) values ('pending');
+insert into statuses (`status`) values ('open');
+insert into statuses (`status`) values ('granted');
+insert into statuses (`status`) values ('paid');
+insert into statuses (`status`) values ('closed');
+insert into statuses (`status`) values ('cancelled');
 
 use InvoiceTest;
 
