@@ -145,13 +145,14 @@ def edit_inv(ID=None):
 
 @app.patch("/edit/<ID>")
 def edit_inv_post(ID=None):
+    db = connect(**db_settings)
+    
     if request.cookies.get('userID') not in db.get_available_users():
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
     # get the data from the json body
     data = request.get_json()
-    db = connect(**db_settings)
     # add the data to the items list
     try:
         db.update_record(**data)
