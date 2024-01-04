@@ -1,7 +1,8 @@
 from flask import Flask, request, send_file, make_response
 from flask_liquid import Liquid, render_template
 from db_conn import connect
-from sqlite3 import DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError
+from sqlite3 import DatabaseError, ProgrammingError, \
+    IntegrityError, Error, InterfaceError
 from db_config import db_settings
 
 
@@ -11,11 +12,13 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
+
 def get_next_id():
     db = connect(**db_settings)
     next_id = db.get_next_invoice_id()
     db.close()
     return next_id
+
 
 def get_available_addresses():
     db = connect(**db_settings)
@@ -31,7 +34,8 @@ def get_root():
         return "You are not allowed to access this page", 403
     try:
         items = db.get_records()
-    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError):
+    except (DatabaseError, ProgrammingError, IntegrityError,
+            Error, InterfaceError):
         db.close()
         return "A database error has occured!" + \
                " Please contact your systems administrator", 500
@@ -44,8 +48,7 @@ def get_root():
                        reverse=not is_asc)
     else:
         items = sorted(items, key=lambda x: x.get(sort_by), reverse=not is_asc)
-        
-        
+
     # Get filters
     exclude_types = request.args.get("excludeType", "").split(",")
     exclude_status = request.args.get("excludeStatus", "").split(",")
@@ -59,18 +62,17 @@ def get_root():
     return render_template("main.liquid", records=items)
 
 
-
 @app.route("/view/<ID>")
 def view_item(ID=None):
     db = connect(**db_settings)
-    
+
     if request.cookies.get('userID') not in db.get_available_users():
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Invoice ID not supplied", 400
     items = db.get_records()
     db.close()
-    
+
     for item in items:
         if ID == str(item.get("id")):
             return render_template("invoice.liquid", **item)
@@ -96,7 +98,8 @@ def create_inv():
         return "You are not allowed to access this page", 403
     db.close()
     addresses = get_available_addresses()
-    return render_template("new_invoice.liquid", id=get_next_id(), valid_addr = addresses)
+    return render_template("new_invoice.liquid", id=get_next_id(),
+                           valid_addr=addresses)
 
 
 @app.post("/new/")
@@ -105,7 +108,7 @@ def create_inv_post():
     if request.cookies.get('userID') not in db.get_available_users():
         db.close()
         return "You are not allowed to access this page", 403
-    
+
     # get the data from the json body
     data = request.get_json()
     # add the data to the items list
@@ -115,7 +118,8 @@ def create_inv_post():
         # update the lines, and add new ones if needed
         for lineIDX, line in enumerate(lines):
             db.create_item(data.get("id"), **line)
-    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError) as e:
+    except (DatabaseError, ProgrammingError, IntegrityError,
+            Error, InterfaceError) as e:
         db.close()
         raise e
     # return the ID
@@ -132,13 +136,15 @@ def edit_inv(ID=None):
         return "Invoice ID not supplied", 400
     try:
         item = db.get_record_by_id(ID)
-    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError):
+    except (DatabaseError, ProgrammingError, IntegrityError,
+            Error, InterfaceError):
         return "Records File not found!" + \
                " Please contact your systems administrator", 500
     db.close()
     if item is not None:
         addresses = get_available_addresses()
-        return render_template("edit_invoice.liquid", **item, valid_addr=addresses)
+        return render_template("edit_invoice.liquid", **item,
+                               valid_addr=addresses)
 
     return "Item not found!", 404
 
@@ -146,7 +152,7 @@ def edit_inv(ID=None):
 @app.patch("/edit/<ID>")
 def edit_inv_post(ID=None):
     db = connect(**db_settings)
-    
+
     if request.cookies.get('userID') not in db.get_available_users():
         return "You are not allowed to access this page", 403
     if ID is None:
@@ -159,15 +165,17 @@ def edit_inv_post(ID=None):
         lines = data.get("li")
         # update the lines, and add new ones if needed
         for lineIDX, line in enumerate(lines):
-            
+
             db.update_line(ID, lineIDX + 1, **line)
         # return the ID
         db.close()
         return f"Record edited with ID: {data.get('id')}", 201
-    except (DatabaseError, ProgrammingError, IntegrityError, Error, InterfaceError) as e:
+    except (DatabaseError, ProgrammingError, IntegrityError,
+            Error, InterfaceError) as e:
         db.close()
         return f"Error: {e}", 500
-    
+
+
 @app.route("/set_user/<ID>")
 def set_user(ID=None):
     db = connect(**db_settings)
@@ -179,6 +187,7 @@ def set_user(ID=None):
     resp.set_cookie('userID', ID)
     db.close()
     return resp, 200
+
 
 @app.route("/favicon.ico")
 def favicon():
