@@ -4,3 +4,4 @@ records.*
 Invoices.sock
 wsgi.py
 records.json
+db_config.py

@@ -11,6 +11,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Financial Record</title>
     <script>
+
+        class Address{
+            constructor(desc, addr1, addr2, addr3, addr4){
+                this.desc = desc
+                this.addr1 = addr1
+                this.addr2 = addr2
+                this.addr3 = addr3
+                this.addr4 = addr4
+            }
+        }
+
+        let addresses = [];
+
         function UpdateApproverBox(){
             if(document.getElementById("IT3").checked && !document.getElementById("S5").checked){
                 let approve_box = document.getElementById("approver")
@@ -44,13 +57,16 @@
         }
 
         function UpdateBoxes(){
-            let now = new Date()
-            let month = now.getMonth()
-            let day = now.getDate()
-            let year = now.getFullYear()
+            let date = new Date()
+            document.getElementById("createDate").value = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? 0 : ""}${date.getMonth()+1}-${date.getDate()+1 < 10 ? 0 : ""}${date.getDate()}`;
 
-            document.getElementById("createDate").value = `${year}-${month}-${day}`
             document.getElementById("ID").value = '{{id}}'
+
+            // Populate the address dropdown box
+            {% for item in valid_addr %}
+                addresses.push(new Address("{{item[5]}}", "{{item[1]}}", "{{item[2]}}", "{{item[3]}}", "{{item[4]}}"))
+            {% endfor %}
+
         }
 
         function getDate(){
@@ -77,6 +93,15 @@
         }
 
         function submit(){
+            if(document.getElementById("addrDropdown").value == ""){
+                alert("Please enter a valid address or select one from the dropdown")
+                document.getElementById("addrDropdown").value = "New Address"
+                return
+            }
+            if(getDate() == "NaN undefined, NaN"){
+                alert("Please enter a valid date")
+                return
+            }
             let post_data = {
                 "id": document.getElementById("ID").value,
                 "date": getDate(),
@@ -87,7 +112,8 @@
                     document.getElementById("RA1").value,
                     document.getElementById("RA2").value,
                     document.getElementById("RA3").value,
-                    document.getElementById("RA4").value],
+                    document.getElementById("RA4").value
+                ],
                 "li": [
                     
                 ],
@@ -96,7 +122,7 @@
                 "total": formatPrice(document.getElementById("total").value),
                 "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : "pending"
             }
-
+            post_data["addr_desc"] = document.getElementById("addrDropdown").value == "New Address" ? prompt("Enter an address description: ") : document.getElementById("addrDropdown").value
             let table = document.getElementById("products")
             for(let i = 1; i < table.rows.length; i++){
                 let item = {
@@ -170,16 +196,56 @@
                 table.rows[i].cells[4].innerHTML = `<button onClick="removeRow(${i})">x</button>`
             }
         }
+
+        function updateAddressFromDropdown(){
+
+            let box_text = document.getElementById("addrDropdown").value
+
+            if(box_text == "New Address"){
+                document.getElementById("RA1").value = ""
+                document.getElementById("RA1").disabled = false
+                document.getElementById("RA2").value = ""
+                document.getElementById("RA2").disabled = false
+                document.getElementById("RA3").value = ""
+                document.getElementById("RA3").disabled = false
+                document.getElementById("RA4").value = ""
+                document.getElementById("RA4").disabled = false
+                return;
+            } else {
+                document.getElementById("RA1").disabled = true
+                document.getElementById("RA2").disabled = true
+                document.getElementById("RA3").disabled = true
+                document.getElementById("RA4").disabled = true
+            }
+
+            addresses.forEach( elt => {
+                if(elt.desc == box_text){
+                    document.getElementById("RA1").value = elt.addr1
+                    document.getElementById("RA2").value = elt.addr2
+                    document.getElementById("RA3").value = elt.addr3
+                    document.getElementById("RA4").value = elt.addr4
+                }
+            
+            })
+        }
     </script>
 </head>
 <body onload="UpdateBoxes()">
     <h1>New Record</h1>
     <fieldset id="RAddr">
         <legend>Remit Address</legend>
-        <input type="text" id="RA1"> <br>
-        <input type="text" id="RA2"> <br>
-        <input type="text" id="RA3"> <br>
-        <input type="text" id="RA4">
+        <input id="addrDropdown" list="addresses" onchange="updateAddressFromDropdown()">
+        <datalist id="addresses">
+            
+            {% for item in valid_addr %}
+                <option value="{{item[5]}}"></option>
+            {% endfor %}
+            <option value="New Address"></option>
+        </datalist>
+        <input type="text" id="RA1" disabled> <br>
+        <input type="text" id="RA2" disabled> <br>
+        <input type="text" id="RA3" disabled> <br>
+        <input type="text" id="RA4" disabled>
     </fieldset>
     <fieldset id="Type">
         <legend>Record Type</legend>
