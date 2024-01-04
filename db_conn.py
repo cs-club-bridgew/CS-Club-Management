@@ -18,40 +18,46 @@ class connect:
         self.mycursor = self.mydb.cursor()
 
     def validate_address(self, address: List[str], addr_desc: str) -> int:
-        self.mycursor.execute(f"SELECT * FROM addresses")
+        self.mycursor.execute("SELECT * FROM addresses")
         myresult = self.mycursor.fetchall()
         for x in myresult:
-            if all([a == b for a, b in zip(address, x[1:])]) and addr_desc == x[5]:
+            if all([a == b for a, b in zip(address, x[1:])]) \
+                    and addr_desc == x[5]:
                 return x[0]
         # Address not found. Add it to the database
         return self.create_address(address, addr_desc)
 
     def create_address(self, address: List[str], addr_desc: str) -> int:
-        sql = "INSERT INTO addresses (Line1, Line2, Line3, Line4, addrName) VALUES (%s, %s, %s, %s, %s)"
+        sql = """INSERT INTO addresses (Line1, Line2, Line3, Line4, addrName)
+                 VALUES (%s, %s, %s, %s, %s)"""
         val = tuple(address) + (addr_desc,)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.lastrowid
 
     def create_record(self, id: int, creator: str,
-                      approver: str, type: str, 
-                      return_addr: List[str], 
-                      tax: float | int, fees: float | int, 
-                      status: str, total: float | int, date: str, li: List, addr_desc: str) -> int:
+                      approver: str, type: str,
+                      return_addr: List[str],
+                      tax: float | int, fees: float | int,
+                      status: str, total: float | int, date: str, li: List,
+                      addr_desc: str) -> int:
         sql = """
-        insert into record (id, createdDate, creator, approver, recordType, return_addr, tax, fees, total, statusID)
+        insert into record (id, createdDate, creator, approver,
+        recordType, return_addr, tax, fees, total, statusID)
         values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         addr_id = self.validate_address(return_addr, addr_desc)
         status_id = self.get_status_id(status)
-        val = (id, getDateObj(date), creator, approver, type, addr_id, tax, fees, total, status_id)
+        val = (id, getDateObj(date), creator, approver, type, addr_id,
+               tax, fees, total, status_id)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.lastrowid
 
     def create_item(self, record_id, **line_data) -> int:
         # Get the current list of items
-        self.mycursor.execute(f"SELECT * FROM inv_line WHERE recordID = {record_id}")
+        self.mycursor.execute("SELECT * FROM inv_line" +
+                              f" WHERE recordID = {record_id}")
         myresult = self.mycursor.fetchall()
         if line_data.get("line") is None:
             # Get the next id
@@ -59,14 +65,17 @@ class connect:
                 line_data['line'] = 1
             else:
                 line_data['line'] = max([x[0] for x in myresult]) + 1
-        sql = "INSERT INTO inv_line (recordID, line, `desc`, ammt, qty, total) VALUES (%s, %s, %s, %s, %s, %s)"
+        sql = """INSERT INTO inv_line
+        (recordID, line, `desc`, ammt, qty, total) VALUES
+        (%s, %s, %s, %s, %s, %s)"""
         ammt = float(line_data.get("ammt", 0))
         qty = float(line_data.get("qty", 0))
-        val = (record_id, line_data['line'], line_data.get("desc"), ammt, qty, ammt * qty)
+        val = (record_id, line_data['line'], line_data.get("desc"), ammt, qty,
+               ammt * qty)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.lastrowid
-    
+
     def update_record(self, **data) -> int:
         sql = "UPDATE record SET "
         params = []
@@ -80,11 +89,11 @@ class connect:
                 if status == 6:
                     value = 0
             if key == "status":
-                key='statusID'
+                key = 'statusID'
                 value = self.get_status_id(value)
                 if value == 6:
                     print(f"Status: {repr(value)}")
-                    
+
                     data['total'] = 0
             if key in ["creator", 'li', 'id', 'addr_desc']:
                 continue
@@ -100,17 +109,19 @@ class connect:
         self.mycursor.execute(sql)
 
     def get_status_id(self, status: str) -> int:
-        self.mycursor.execute(f"SELECT * FROM statuses WHERE statusDesc = '{status}'")
+        self.mycursor.execute("SELECT * FROM statuses WHERE statusDesc = " +
+                              f"'{status}'")
         myresult = self.mycursor.fetchall()
         if len(myresult) == 0:
-            raise Exception(f"Status {status} not found., SELECT * FROM statuses WHERE statusDesc = '{status}'")
+            raise Exception(f"Status {status} not found.")
         return myresult[0][0]
-    
+
     def get_status(self, status_id: int) -> str:
-        self.mycursor.execute(f"SELECT * FROM statuses WHERE statusID = {status_id}")
+        self.mycursor.execute("SELECT * FROM statuses WHERE statusID = " +
+                              f"{status_id}")
         myresult = self.mycursor.fetchall()
         return myresult[0][1]
-    
+
     def get_next_invoice_id(self) -> int:
         sql = "SELECT * FROM record"
         self.mycursor.execute(sql)
@@ -120,12 +131,12 @@ class connect:
         while i <= max_result:
             if i not in [x[0] for x in myresult]:
                 return i
-            i += 1   
+            i += 1
 
     def get_records(self) -> List:
         record_sql = """
-        SELECT a.id, a.createdDate, a.creator, a.approver, a.recordType, a.tax, a.fees, 
-        a.total, a.return_addr, b.statusDesc FROM record a, statuses b 
+        SELECT a.id, a.createdDate, a.creator, a.approver, a.recordType, a.tax,
+        a.fees, a.total, a.return_addr, b.statusDesc FROM record a, statuses b
         WHERE a.statusID = b.statusID
         """
         line_sql = """
@@ -160,11 +171,11 @@ class connect:
                     "total": x[4]
                 })
         return records
-    
+
     def get_record_by_id(self, id: int) -> dict:
         record_sql = """
-        SELECT a.id, a.createdDate, a.creator, a.approver, a.recordType, a.tax, a.fees, 
-        a.total, a.return_addr, b.statusDesc FROM record a, statuses b 
+        SELECT a.id, a.createdDate, a.creator, a.approver, a.recordType, a.tax,
+        a.fees, a.total, a.return_addr, b.statusDesc FROM record a, statuses b
         WHERE a.statusID = b.statusID and a.id = %s
         """
         line_sql = """
@@ -197,20 +208,20 @@ class connect:
                 "total": x[4]
             })
         return record
-    
+
     def get_available_addresses(self):
         sql = "SELECT * FROM addresses"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
         return myresult
-    
+
     def get_address(self, id: int) -> List[str]:
         if id is None:
             return ["", "", "", ""]
         self.mycursor.execute(f"SELECT * FROM addresses WHERE addrSeq = {id}")
         myresult = self.mycursor.fetchall()
         return myresult[0][1:]
-    
+
     def update_line(self, recordID, lineNum, **data) -> int:
         sql = "SELECT * FROM inv_line WHERE recordID = %s"
         values = (recordID,)
@@ -229,19 +240,21 @@ class connect:
         self.mycursor.execute(sql)
         self.mydb.commit()
         return self.mycursor.lastrowid
-    
+
     def get_available_users(self) -> List[str]:
         sql = "SELECT * FROM allowedUsers"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
         return [x[0] for x in myresult]
-    
+
     def close(self):
         self.mydb.commit()
         self.mydb.close()
 
+
 def format_date(date: str) -> str:
     return date.strftime("%d %b, %Y")
+
 
 def getDateObj(date: str) -> datetime.datetime:
     date_split = date.split()
