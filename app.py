@@ -87,7 +87,7 @@ def get_image():
         db.close()
         return "You are not allowed to access this page", 403
     db.close()
-    return send_file("logo.jpg", mimetype='image/gif')
+    return send_file("./static/logo.jpg", mimetype='image/gif')
 
 
 @app.route('/new/')
@@ -191,7 +191,7 @@ def set_user(ID=None):
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_file("favicon.ico", mimetype='image/gif')
+    return send_file("./static/favicon.ico", mimetype='image/gif')
 
 
 @app.post("/preview")
