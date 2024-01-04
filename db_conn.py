@@ -17,18 +17,18 @@ class connect:
         )
         self.mycursor = self.mydb.cursor()
 
-    def validate_address(self, address: List[str]):
+    def validate_address(self, address: List[str], addr_desc: str) -> int:
         self.mycursor.execute(f"SELECT * FROM addresses")
         myresult = self.mycursor.fetchall()
         for x in myresult:
-            if all([a == b for a, b in zip(address, x[1:])]):
+            if all([a == b for a, b in zip(address, x[1:])]) and addr_desc == x[5]:
                 return x[0]
         # Address not found. Add it to the database
-        return self.create_address(address)
+        return self.create_address(address, addr_desc)
 
-    def create_address(self, address: List[str]) -> int:
-        sql = "INSERT INTO addresses (Line1, Line2, Line3, Line4) VALUES (%s, %s, %s, %s)"
-        val = tuple(address)
+    def create_address(self, address: List[str], addr_desc: str) -> int:
+        sql = "INSERT INTO addresses (Line1, Line2, Line3, Line4, addrName) VALUES (%s, %s, %s, %s, %s)"
+        val = tuple(address) + (addr_desc,)
         self.mycursor.execute(sql, val)
         self.mydb.commit()
         return self.mycursor.lastrowid
@@ -37,13 +37,12 @@ class connect:
                       approver: str, type: str, 
                       return_addr: List[str], 
                       tax: float | int, fees: float | int, 
-                      status: str, total: float | int, date: str, li: List) -> int:
+                      status: str, total: float | int, date: str, li: List, addr_desc: str) -> int:
         sql = """
         insert into record (id, createdDate, creator, approver, recordType, return_addr, tax, fees, total, statusID)
         values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        print(total)
-        addr_id = self.validate_address(return_addr)
+        addr_id = self.validate_address(return_addr, addr_desc)
         status_id = self.get_status_id(status)
         val = (id, getDateObj(date), creator, approver, type, addr_id, tax, fees, total, status_id)
         self.mycursor.execute(sql, val)
@@ -95,12 +94,15 @@ class connect:
         return myresult[0][1]
     
     def get_next_invoice_id(self) -> int:
-        sql = "SELECT * FROM record WHERE recordType = 'invoice'"
+        sql = "SELECT * FROM record"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
-        if len(myresult) == 0:
-            return 1
-        return max([x[0] for x in myresult]) + 1        
+        max_result = max([x[0] for x in myresult])
+        i = 1
+        while i <= max_result:
+            if i not in [x[0] for x in myresult]:
+                return i
+            i += 1   
 
     def get_records(self) -> List:
         record_sql = """
@@ -132,7 +134,6 @@ class connect:
                 }
             )
             for x in lines:
-                print(x)
                 records[-1]["li"].append({
                     "line": x[0],
                     "desc": x[1],
@@ -179,6 +180,12 @@ class connect:
             })
         return record
     
+    def get_available_addresses(self):
+        sql = "SELECT * FROM addresses"
+        self.mycursor.execute(sql)
+        myresult = self.mycursor.fetchall()
+        return myresult
+    
     def get_address(self, id: int) -> List[str]:
         if id is None:
             return ["", "", "", ""]
@@ -201,7 +208,6 @@ class connect:
             params.append(f"`{key}` = '{value}'")
         sql += ", ".join(params)
         sql += f" WHERE recordID = {recordID} AND line = {lineNum}"
-        print(sql)
         self.mycursor.execute(sql)
         self.mydb.commit()
         return self.mycursor.lastrowid

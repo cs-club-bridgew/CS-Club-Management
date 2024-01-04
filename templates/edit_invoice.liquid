@@ -12,6 +12,17 @@
     <title>Edit {{id}}</title>
     <script>
         let products;
+        class Address{
+            constructor(desc, addr1, addr2, addr3, addr4){
+                this.desc = desc
+                this.addr1 = addr1
+                this.addr2 = addr2
+                this.addr3 = addr3
+                this.addr4 = addr4
+            }
+        }
+
+        let addresses = [];
         function AddRow(){
             let table = document.getElementById("products")
             let row = table.insertRow()
@@ -37,6 +48,8 @@
                 document.getElementById("RA2").disabled = true
                 document.getElementById("RA3").disabled = true
                 document.getElementById("RA4").disabled = true
+                document.getElementById("addrDropdown").value = "SGA Budget"
+                document.getElementById("addrDropdown").disabled = true
 
 
             } else if (document.getElementById("IT3").checked && document.getElementById("S5").checked){
@@ -52,6 +65,8 @@
                 document.getElementById("RA2").disabled = false
                 document.getElementById("RA3").disabled = false
                 document.getElementById("RA4").disabled = false
+                document.getElementById("addrDropdown").disabled = false
+                document.getElementById("addrDropdown").value = "New Address"
             }
         }
     function updateBoxes(){
@@ -112,6 +127,29 @@
             cell5.innerHTML = `<button onclick="RemoveRow(${i+1})">x</button>`;
         }
 
+        {% for item in valid_addr %}
+            addresses.push(new Address("{{item[5]}}", "{{item[1]}}", "{{item[2]}}", "{{item[3]}}", "{{item[4]}}"))
+        {% endfor %}
+        let option = document.getElementById("addrDropdown")
+        let RA1 = document.getElementById("RA1")
+        let RA2 = document.getElementById("RA2")
+        let RA3 = document.getElementById("RA3")
+        let RA4 = document.getElementById("RA4")
+        addresses.forEach( elt => {
+            if(
+                RA1.value == elt.addr1 &&
+                RA2.value == elt.addr2 &&
+                RA3.value == elt.addr3 &&
+                RA4.value == elt.addr4
+            ){
+                option.value = elt.desc
+                RA1.disabled = true
+                RA2.disabled = true
+                RA3.disabled = true
+                RA4.disabled = true
+            }
+        })
+
     }
     function updateTotal(){
         // Iterate through the table and calculate the total
@@ -152,6 +190,11 @@
             alert("Please enter a valid date")
             return
         }
+        if(document.getElementById("addrDropdown").value == ""){
+            alert("Please enter a valid address or select one from the dropdown")
+            document.getElementById("addrDropdown").value = "New Address"
+            return
+        }
 
         let post_data = {
             "id": document.getElementById("ID").value,
@@ -172,6 +215,8 @@
             "total": formatPrice(document.getElementById("total").value),
             "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : document.getElementById("S5").checked ? "pending" : "cancelled"
         }
+        post_data["addr_desc"] = document.getElementById("addrDropdown").value == "New Address" ? prompt("Enter an address description: ") : document.getElementById("addrDropdown").value
+
 
         let table = document.getElementById("products")
         for(let i = 1; i < table.rows.length; i++){
@@ -288,12 +333,52 @@
         }
     }
 
+    function updateAddressFromDropdown(){
+
+        let box_text = document.getElementById("addrDropdown").value
+
+        if(box_text == "New Address"){
+            document.getElementById("RA1").value = ""
+            document.getElementById("RA1").disabled = false
+            document.getElementById("RA2").value = ""
+            document.getElementById("RA2").disabled = false
+            document.getElementById("RA3").value = ""
+            document.getElementById("RA3").disabled = false
+            document.getElementById("RA4").value = ""
+            document.getElementById("RA4").disabled = false
+            return;
+        } else {
+            document.getElementById("RA1").disabled = true
+            document.getElementById("RA2").disabled = true
+            document.getElementById("RA3").disabled = true
+            document.getElementById("RA4").disabled = true
+        }
+
+        addresses.forEach( elt => {
+            if(elt.desc == box_text){
+                document.getElementById("RA1").value = elt.addr1
+                document.getElementById("RA2").value = elt.addr2
+                document.getElementById("RA3").value = elt.addr3
+                document.getElementById("RA4").value = elt.addr4
+            }
+        
+        })
+    }
+
     </script>
 </head>
 <body onload="updateBoxes()">
     <h1>Edit Record {{id}}</h1>
     <fieldset id="RAddr">
         <legend>Remit Address</legend>
+        <input id="addrDropdown" list="addresses" onchange="updateAddressFromDropdown()" autocomplete>
+        <datalist id="addresses">
+            
+            {% for item in valid_addr %}
+                <option value="{{item[5]}}"></option>
+            {% endfor %}
+            <option value="New Address"></option>
+        </datalist> <br>
         <input type="text" id="RA1"> <br>
         <input type="text" id="RA2"> <br>
         <input type="text" id="RA3"> <br>
@@ -353,6 +438,12 @@
 <style>
     html{
         background: gray;
+    }
+    #RA1, #RA2, #RA3, #RA4{
+        width: 97%;
+    }
+    #RAddr{
+        width: 25%;
     }
 </style>
 </html>
