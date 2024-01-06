@@ -1,0 +1,17 @@
+#filters{
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 30dvw;
+    display: inline-block;
+    
+}
+
+#status_filter, #type_filter{
+    border: 1px solid #ddd;
+    padding: 10px;
+    display: inline-block;
+    vertical-align: top;
+    width: 10dvw;
+    margin-bottom: 5px;
+}
