@@ -53,11 +53,11 @@ def add_docket_item():
     }
     result["created_by"] = user
     result['docket_id'] = len(items) + 1
-    result['status'] = "Open"
+    result['status'] = "In Progess"
     result['create_date'] = int(time.time())
     items.append(result)
     save_docket(items)
-    return "OK", 201
+    return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
 
 
 @app.post("/docket/edit/<ID>")
@@ -67,11 +67,24 @@ def edit_docket_item(ID=None):
         return "You are not allowed to access this page", 403
     if ID is None:
         return "Docket ID not supplied", 400
+    
     db.close()
     items = load_docket()
-    items[int(ID) - 1] = request.form
+    item = items[int(ID) - 1]
+    for key, val in request.form.items():
+        item[key] = val
+        if key == "status":
+            match val:
+                case '1':
+                    item['status'] = "In Progress"
+                case '2':
+                    item['status'] = "Complete"
+                case _:
+                    item['status'] = "In Progress"
+    # items[int(ID) - 1] = item
     save_docket(items)
-    return "OK", 201
+    return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
+
 
 @app.route("/docket/edit/<ID>")
 def get_docket_exit(ID=None):
@@ -80,7 +93,6 @@ def get_docket_exit(ID=None):
         return "You are not allowed to access this page", 403
     user_info = db.get_user_full(request.cookies.get('userID'))
     db.close()
-    print(user_info)
     items = load_docket()
     return render_template("docket/edit.liquid", record=items[int(ID) - 1], current_user=user_info)
 
@@ -92,6 +104,7 @@ def docket_favicon():
         return "You are not allowed to access this page", 403
     db.close()
     return send_file("./static/docket/favicon.ico", mimetype='image/gif')
+
 
 @app.get("/docket/new/")
 def create_docket():

@@ -42,6 +42,23 @@
     </table>
     <h2>{{record.title}}</h2>
     <p>{{record.description}}</p>
+    {% if record.status == 'Complete' %}
+        <h2>Vote Stats:</h2>
+        <table>
+            <tr>
+                <th>In Favor</th>
+                <td>{{record.in_favor}}</td>
+            </tr>
+            <tr>
+                <th>Opposed</th>
+                <td>{{record.opposed}}</td>
+            </tr>
+            <tr>
+                <th>Abstained</th>
+                <td>{{record.abstained}}</td>
+            </tr>                
+        </table>
+    {% endif %}
 </body>
 <style>
     th{

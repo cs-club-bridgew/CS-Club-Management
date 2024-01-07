@@ -93,7 +93,6 @@ class connect:
             if key == "return_addr":
                 addr_name = data.get("addr_desc", "")
                 value = self.validate_address(value, addr_name)
-                print(f"Addr: {value}")
             if key == "total":
                 status = self.get_status_id(data.get("status"))
                 if status == 6:
@@ -102,7 +101,6 @@ class connect:
                 key = 'statusID'
                 value = self.get_status_id(value)
                 if value == 6:
-                    print(f"Status: {repr(value)}")
 
                     data['total'] = 0
             if key in ["creator", 'li', 'id', 'addr_desc']:
@@ -114,7 +112,6 @@ class connect:
                 key = "recordType"
             params.append(f"`{key}` = '{value}'")
         sql += ", ".join(params)
-        print(sql)
         sql += f" WHERE id = {data.get('id')}"
         self.mycursor.execute(sql)
 

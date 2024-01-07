@@ -23,16 +23,16 @@
 
     <script>
 
-        (function(seconds) {
+        ((seconds) => {
             var refresh,       
-                intvrefresh = function() {
+                intvrefresh = () => {
                     clearInterval(refresh);
-                    refresh = setTimeout(function() {
+                    refresh = setTimeout(() => {
                        location.href = location.href;
                     }, seconds * 1000);
                 };
         
-            $(document).on('keypress click', function() { intvrefresh() });
+            $(document).on('keypress click', () => { intvrefresh() });
             intvrefresh();
         
         }(15)); // define here seconds

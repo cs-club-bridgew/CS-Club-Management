@@ -4,7 +4,21 @@
         "created_by": "Alex Dasneves",
         "title": "Vote to create Fundraising Committee",
         "description": "I believe that a fundraising committee would be greatly valuable as we would be able to involve the greater club with planning for fundraisers, with what they would like to see.",
-        "status": "Open",
-        "create_date": 1704593370
+        "status": "Complete",
+        "create_date": 1704593370,
+        "in_favor": "1",
+        "opposed": "3",
+        "abstained": "0"
+    },
+    {
+        "docket_id": 2,
+        "created_by": "Alex Dasneves",
+        "title": "Test123",
+        "description": "Testing update docket functions",
+        "status": "Complete",
+        "create_date": 1704595224,
+        "in_favor": "3",
+        "opposed": "1",
+        "abstained": "0"
     }
 ]
