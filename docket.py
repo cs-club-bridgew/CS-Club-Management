@@ -5,6 +5,7 @@ from flask_liquid import render_template
 from db_config import db_settings
 import json
 import time
+from docket_report import generate_docket_report
 
 def load_docket():
     try:
@@ -81,7 +82,7 @@ def edit_docket_item(ID=None):
                     item['status'] = "Complete"
                 case _:
                     item['status'] = "In Progress"
-    # items[int(ID) - 1] = item
+    item["total"] = int(item.get("in_favor", "0")) + int(item.get("opposed", "0"))
     save_docket(items)
     return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
 
@@ -117,3 +118,23 @@ def create_docket():
 
     return render_template("docket/new.liquid", user_name=user_name, recordID=recordID)
 
+
+@app.get("/docket/report/<START>/<END>")
+def gen_report(START=None, END=None):
+    db = connect(**db_settings)
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
+
+    if START is None or END is None:
+        return "Start and end dates not supplied", 400
+    user = db.get_user_full(request.cookies.get('userID'))
+    db.close()
+
+    items = load_docket()
+    
+    for item in items[::-1]:
+        
+        if int(item['create_date']) < int(START) or int(item['create_date']) > int(END):
+            items.remove(item)
+        item['create_date'] = time.strftime("%m/%d/%Y", time.localtime(int(item['create_date'])))
+    return send_file(generate_docket_report(items, time.strftime("%m/%d/%Y", time.localtime(int(START))), time.strftime("%m/%d/%Y", time.localtime(int(END))), user[1]))

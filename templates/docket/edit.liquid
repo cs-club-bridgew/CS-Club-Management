@@ -32,7 +32,7 @@
     
             <select name="status" id="status">
                 <option value="1" {% if record.status == "In Progress" %} selected {% endif %}>In Progress</option>
-                <option value="2" {% if record.status == "Completed" %} selected {% endif %}>Completed</option>
+                <option value="2" {% if record.status == "Complete" %} selected {% endif %}>Complete</option>
             </select> <br> <br>
             <!-- Add boxes for voting results (In favor, Opposed, Abstained)-->
             <label for="in_favor">In Favor</label>
