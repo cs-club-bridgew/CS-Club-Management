@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docket ID #{{record.docket_id}}</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/invoices/style.css">
+    <link rel="icon" type="image/x-icon" href="/docket/favicon.ico">
+
+    <script>
+        // Populate the date field with the date from the database
+        function populateDate(){
+            let date = new Date({{record.create_date}} * 1000);
+            document.getElementById("createDate").innerHTML = date.toLocaleString();
+        }
+    </script>
+</head>
+<body onload="populateDate()">
+    <button onclick="window.location.href='/docket/'">Back</button>
+    <button onclick="window.location.href='/docket/edit/{{record.docket_id}}'">Edit</button>
+    <br>
+    <br>
+    <!-- Create a table that has all information from the docket record -->
+    <table>
+        <tr>
+            <th>Docket ID</th>
+            <td>{{record.docket_id}}</td>
+        </tr>
+        <tr>
+            <th>Created By</th>
+            <td>{{record.created_by}}</td>
+        </tr>
+        <tr>
+            <th>Created On</th>
+            <td id="createDate"></td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{{record.status}}</td>
+        </tr>
+    </table>
+    <h2>{{record.title}}</h2>
+    <p>{{record.description}}</p>
+    {% if record.status == 'Complete' %}
+        <h2>Vote Stats:</h2>
+        <table>
+            <tr>
+                <th>In Favor</th>
+                <td>{{record.in_favor}}</td>
+            </tr>
+            <tr>
+                <th>Opposed</th>
+                <td>{{record.opposed}}</td>
+            </tr>
+            <tr>
+                <th>Abstained</th>
+                <td>{{record.abstained}}</td>
+            </tr>                
+        </table>
+    {% endif %}
+</body>
+<style>
+    th{
+        width: 30%;
+    }
+    table{
+        width: 40%;
+        border-collapse: collapse;
+    }
+</style>
+</html>

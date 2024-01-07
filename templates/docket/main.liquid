@@ -1,0 +1,102 @@
+{% assign required_percent = 2.0 |  divided_by: 3.0 %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docket Manager</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/invoices/style.css">
+    <link rel="icon" type="image/x-icon" href="/docket/favicon.ico">
+    <script>
+        function populateDate(){
+            let cell;
+            {% for row in docket_items %}
+                cell = document.getElementById("{{row.docket_id}}");
+                cell.innerText = (new Date({{row.create_date}} * 1000)).toLocaleString();
+            {% endfor %}
+        }
+        
+        function generateReport(){
+            // Get the start and end dates in Epoch time
+            let startdate = document.getElementById("startdate").value;
+            let enddate = document.getElementById("enddate").value;
+            let startEpoch = new Date(startdate).getTime() / 1000;
+            let endEpoch = new Date(enddate).getTime() / 1000;
+            if(startEpoch > endEpoch){
+                alert("Start date must be before end date");
+                return;
+            }
+            if(isNaN(startEpoch) || isNaN(endEpoch)){
+                alert("Please enter a valid date");
+                return;
+            }
+            // Create the URL
+            let url = "/docket/report/" + startEpoch + "/" + endEpoch;
+            // Open a new tab with the URL
+            window.open(url, '_blank');
+
+        };
+    </script>
+</head>
+<body onload="populateDate()">
+    {% render "navbar.liquid" %}
+    <br>
+    <br>
+    <button onclick="window.location.href='/docket/new/'">Create Docket Record</button>
+    <fieldset class="report">
+    <button onclick="generateReport()">Create Docket Report</button>
+    <label for="startdate">Begin Date:</label>
+    <input type="datetime-local" id="startdate" name="startdate">
+    <label for="enddate">End Date:</label>
+    <input type="datetime-local" id="enddate" name="enddate">
+    </fieldset>
+    <br>
+    <br>
+    <table>
+        <tr>
+            <th style="width: 10%;">Docket ID</th>
+            <th style="width: 20%;">Created By</th>
+            <th style="width: 20%;">Created Date</th>
+            <th style="width: 20%;" colspan="2">Status</th>
+            <th style="width: 20%">Title</th>
+            <th style="width: 10%;">View</th>
+        </tr>
+        {% for row in docket_items %}
+            <tr>
+                <td>{{ row.docket_id }}</td>
+                <td>{{ row.created_by }}</td>
+                <td id="{{row.docket_id}}"></td>
+                <td {% if row.status != 'Complete' %}
+                    colspan="2"
+                {% endif %}>{{ row.status }}</td>
+                {% if row.status == 'Complete' %}
+                    <td> 
+                    {% assign row_total = row.total | times: 1.0 %}
+                    {% assign percent = row.in_favor | divided_by: row_total %}    
+                    {% if percent >= required_percent %}
+                        Passed
+                    {% else %}
+                        Failed
+                    {% endif %}
+                    </td>
+                {% endif %}
+                <td>{{ row.title }}</td>
+                <td><a id="nav" href="/docket/view/{{ row.docket_id }}">View</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+    .report{
+        display: inline-block;
+    }
+</style>
+</html>

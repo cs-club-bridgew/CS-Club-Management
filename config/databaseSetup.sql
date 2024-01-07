@@ -16,6 +16,8 @@ create table statuses (
 
 create table allowedusers (
     userID varchar(255) not null unique,
+    user_name varchar(255),
+    administrator bool default 0
 );
 
 create table record (

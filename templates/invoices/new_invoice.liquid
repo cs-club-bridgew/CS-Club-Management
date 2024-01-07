@@ -8,6 +8,7 @@
     <meta http-equiv="expires" content="Tue, 01 Jan 1980 11:00:00 GMT">
     <meta http-equiv="pragma" content="no-cache">
     <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="/invoices/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Financial Record</title>
     <script>
@@ -142,7 +143,7 @@
             }
             console.log(post_data)
             let xhr = new XMLHttpRequest()
-            xhr.open("POST", "/new/")
+            xhr.open("POST", "/invoices/new/")
             xhr.setRequestHeader("Content-Type", "application/json")
             xhr.send(JSON.stringify(post_data))
             xhr.onreadystatechange = function(){
@@ -208,7 +209,7 @@
                 post_data.li.push(item)
             }
             let xhr = new XMLHttpRequest()
-            xhr.open("POST", "/preview")
+            xhr.open("POST", "/invoices/preview")
             xhr.setRequestHeader("Content-Type", "application/json")
             xhr.send(JSON.stringify(post_data))
             xhr.onreadystatechange = function(){

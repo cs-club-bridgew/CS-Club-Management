@@ -16,6 +16,16 @@ class connect:
             database=self.db
         )
         self.mycursor = self.mydb.cursor()
+    
+    def get_user(self, id: str) -> str:
+        user = self.get_user_full(id)
+        return user[1]
+    
+    def get_user_full(self, id: str) -> str:
+        sql = "SELECT userID, user_name, administrator FROM allowedUsers where userID = %s"
+        self.mycursor.execute(sql, (id,))
+        myresult = self.mycursor.fetchone()
+        return myresult
 
     def validate_address(self, address: List[str], addr_desc: str) -> int:
         self.mycursor.execute("SELECT * FROM addresses")
@@ -83,7 +93,6 @@ class connect:
             if key == "return_addr":
                 addr_name = data.get("addr_desc", "")
                 value = self.validate_address(value, addr_name)
-                print(f"Addr: {value}")
             if key == "total":
                 status = self.get_status_id(data.get("status"))
                 if status == 6:
@@ -92,7 +101,6 @@ class connect:
                 key = 'statusID'
                 value = self.get_status_id(value)
                 if value == 6:
-                    print(f"Status: {repr(value)}")
 
                     data['total'] = 0
             if key in ["creator", 'li', 'id', 'addr_desc']:
@@ -104,7 +112,6 @@ class connect:
                 key = "recordType"
             params.append(f"`{key}` = '{value}'")
         sql += ", ".join(params)
-        print(sql)
         sql += f" WHERE id = {data.get('id')}"
         self.mycursor.execute(sql)
 
@@ -126,12 +133,14 @@ class connect:
         sql = "SELECT * FROM record"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
-        max_result = max([x[0] for x in myresult])
+        used_ids = [x[0] for x in myresult]
+        max_result = max(used_ids)
         i = 1
         while i <= max_result:
-            if i not in [x[0] for x in myresult]:
-                return i
+            if i not in used_ids:
+                break
             i += 1
+        return i
 
     def get_records(self) -> List:
         record_sql = """
@@ -218,9 +227,9 @@ class connect:
     def get_address(self, id: int) -> List[str]:
         if id is None:
             return ["", "", "", ""]
-        self.mycursor.execute(f"SELECT * FROM addresses WHERE addrSeq = {id}")
+        self.mycursor.execute(f"SELECT Line1, Line2, Line3, Line4 FROM addresses WHERE addrSeq = {id}")
         myresult = self.mycursor.fetchall()
-        return myresult[0][1:]
+        return myresult[0]
 
     def update_line(self, recordID, lineNum, **data) -> int:
         sql = "SELECT * FROM inv_line WHERE recordID = %s"
@@ -250,6 +259,7 @@ class connect:
     def close(self):
         self.mydb.commit()
         self.mydb.close()
+        
 
 
 def format_date(date: str) -> str:

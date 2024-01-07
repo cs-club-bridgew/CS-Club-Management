@@ -11,6 +11,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Computer Science Club Finances</title>
+    <link rel="icon" type="image/x-icon" href="/invoices/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/invoices/style.css">
+
     <!-- meta refresh -->
     <!-- <meta http-equiv="refresh" content="10"> -->
 
@@ -19,16 +23,16 @@
 
     <script>
 
-        (function(seconds) {
+        ((seconds) => {
             var refresh,       
-                intvrefresh = function() {
+                intvrefresh = () => {
                     clearInterval(refresh);
-                    refresh = setTimeout(function() {
+                    refresh = setTimeout(() => {
                        location.href = location.href;
                     }, seconds * 1000);
                 };
         
-            $(document).on('keypress click', function() { intvrefresh() });
+            $(document).on('keypress click', () => { intvrefresh() });
             intvrefresh();
         
         }(15)); // define here seconds
@@ -90,7 +94,7 @@
 
             // Apply the sort
             lastOrder = (lastOrder == "asc") ? "desc" : "asc";
-            window.location.href = "/?sort=" + type + "&order=" + lastOrder + "&excludeType=" + excludeType + "&excludeStatus=" + excludeStatus;
+            window.location.href = "/invoices/?sort=" + type + "&order=" + lastOrder + "&excludeType=" + excludeType + "&excludeStatus=" + excludeStatus;
         }
 
         function filter(){
@@ -126,15 +130,17 @@
             })
 
             // Apply the filters
-            window.location.href = "/?sort=" + lastSort + "&order=" + lastOrder + "&excludeType=" + type + "&excludeStatus=" + status;
+            window.location.href = "/invoices/?sort=" + lastSort + "&order=" + lastOrder + "&excludeType=" + type + "&excludeStatus=" + status;
         }
     </script>
 </head>
 <body onload="onLoad()">
     <!-- Add filters -->
-    <fieldset>
+    {% render "navbar.liquid" %}
+    <br><br>
+    <fieldset id="filters">
         <legend>Filters</legend>
-        <fieldset>
+        <fieldset id="status_filter">
             <legend>Status</legend>
             <input type="checkbox" name="pending" id="pending">
             <label for="pending">Pending</label> <br>
@@ -154,7 +160,7 @@
             <input type="checkbox" name="cancelled" id="cancelled">
             <label for="cancelled">Cancelled</label> <br>
         </fieldset>
-        <fieldset>
+        <fieldset id="type_filter">
             <legend>Type</legend>
             <input type="checkbox" name="invoice" id="invoice">
             <label for="invoice">Invoice</label> <br>
@@ -162,10 +168,11 @@
             <label for="c_invoice">Credit Invoice</label> <br>
             <input type="checkbox" name="sga_budget" id="sga_budget">
             <label for="sga_budget">SGA Budget Request</label> <br>
-        </fieldset>
+        </fieldset> <br>
         <button onclick="filter()">Apply Filters</button>
     </fieldset>
-    <button onclick="window.location.href='/new/'">New Finance Record</button>
+    <br>
+    <button onclick="window.location.href='/invoices/new/'">New Finance Record</button>
     <table class="MainTable">
         <tr>
             <th onclick="sort('id')">Item ID</th>
@@ -196,7 +203,7 @@
             <td>{{item.status}}</td>
             <td>{{item.li | size}}</td>
             <td>{{item.total}}</td>
-            <td><button onclick="window.open('/view/{{item.id}}')">Open</button><button onclick="window.open('/edit/{{item.id}}')">Edit</button></td>
+            <td><button onclick="window.open('/invoices/view/{{item.id}}')">Open</button><button onclick="window.open('/invoices/edit/{{item.id}}')">Edit</button></td>
         </tr>
     {% endfor %}
     </table>
