@@ -185,4 +185,4 @@ def preview():
         db.close()
         return "You are not allowed to access this page", 403
     data = request.get_json()
-    return render_template("invoice/invoice.liquid", **data)
+    return render_template("invoices/invoice.liquid", **data)

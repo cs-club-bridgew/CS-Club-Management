@@ -136,12 +136,14 @@ class connect:
         sql = "SELECT * FROM record"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
-        max_result = max([x[0] for x in myresult])
+        used_ids = [x[0] for x in myresult]
+        max_result = max(used_ids)
         i = 1
         while i <= max_result:
-            if i not in [x[0] for x in myresult]:
-                return i
+            if i not in used_ids:
+                break
             i += 1
+        return i
 
     def get_records(self) -> List:
         record_sql = """
@@ -228,9 +230,9 @@ class connect:
     def get_address(self, id: int) -> List[str]:
         if id is None:
             return ["", "", "", ""]
-        self.mycursor.execute(f"SELECT * FROM addresses WHERE addrSeq = {id}")
+        self.mycursor.execute(f"SELECT Line1, Line2, Line3, Line4 FROM addresses WHERE addrSeq = {id}")
         myresult = self.mycursor.fetchall()
-        return myresult[0][1:]
+        return myresult[0]
 
     def update_line(self, recordID, lineNum, **data) -> int:
         sql = "SELECT * FROM inv_line WHERE recordID = %s"

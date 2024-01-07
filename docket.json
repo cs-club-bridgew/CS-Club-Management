@@ -1,3 +1,10 @@
 [
-   
+    {
+        "docket_id": 1,
+        "created_by": "Alex Dasneves",
+        "title": "Vote to create Fundraising Committee",
+        "description": "I believe that a fundraising committee would be greatly valuable as we would be able to involve the greater club with planning for fundraisers, with what they would like to see.",
+        "status": "Open",
+        "create_date": 1704593370
+    }
 ]
