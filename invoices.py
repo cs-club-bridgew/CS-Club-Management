@@ -174,7 +174,7 @@ def set_user(ID=None):
 
 
 @app.route("/invoices/favicon.ico")
-def favicon():
+def inv_favicon():
     return send_file("./static/invoices/favicon.ico", mimetype='image/gif')
 
 

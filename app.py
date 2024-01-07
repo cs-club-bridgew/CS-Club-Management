@@ -11,6 +11,7 @@ app.config.update(
 )
 
 import invoices
+import docket
 
 @app.route("/style.css")
 def get_main_css():
@@ -22,4 +23,12 @@ def get_invoice_css():
 
 @app.route("/navbar/")
 def get_navbar():
+    return render_template("navbar.liquid")
+
+@app.route("/about/")
+def get_about():
+    return render_template("about.liquid")
+
+@app.route("/")
+def get_main_root():
     return render_template("navbar.liquid")
