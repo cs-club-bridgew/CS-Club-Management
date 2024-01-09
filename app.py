@@ -30,3 +30,14 @@ def get_about():
 @app.route("/")
 def get_main_root():
     return render_template("navbar.liquid")
+
+@app.route("/set_user/")
+def set_user_cookie():
+    return """
+    <html>
+    <script>
+        window.location.href = `/set_user/${prompt("Enter your user token")}`;
+    </script>
+    </html>
+
+"""
