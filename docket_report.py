@@ -10,8 +10,8 @@ from time import time
 def clear_dockets():
     """Clears the docket directory."""
     print("Clearing dockets...")
-    subprocess.run(["rm", "-r", "./reports/"])
-    subprocess.run(["mkdir", "-p", "./reports/"])
+    subprocess.run(["rm", "/home/www/Invoices/reports/*"])
+    subprocess.run(["mkdir", "-p", "/home/www/Invoices/reports/"])
 
 def generate_docket_report(docket: list, start_date: str, end_date: str, user_name: str):
     """Generates a docket report using LaTeX.
@@ -26,7 +26,7 @@ def generate_docket_report(docket: list, start_date: str, end_date: str, user_na
         str: The path to the generated PDF.
     """
     
-    clear_dockets()
+    #clear_dockets()
     template_header = r"""
 \documentclass[twoside]{article}
 \usepackage[margin=3cm]{geometry}
@@ -73,7 +73,7 @@ def generate_docket_report(docket: list, start_date: str, end_date: str, user_na
         with open(os.path.join(temp_dir, "docket_report.tex"), "w") as f:
             f.write(template_header)
             f.write(template_footer)
-        subprocess.run(["pdflatex", "-output-directory", temp_dir, os.path.join(temp_dir, "docket_report.tex")])
+        subprocess.run(["/usr/bin/pdflatex", "-output-directory", temp_dir, os.path.join(temp_dir, "docket_report.tex")])
         file_path = f"./reports/docket_report_{int(time())}.pdf"
-        subprocess.run(["mv", os.path.join(temp_dir, "docket_report.pdf"), file_path])
+        subprocess.run(["/usr/bin/mv", os.path.join(temp_dir, "docket_report.pdf"), file_path])
         return file_path
