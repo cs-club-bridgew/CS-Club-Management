@@ -14,7 +14,11 @@
             {% for row in docket_items %}
                 cell = document.getElementById("{{row.docket_id}}");
                 cell.innerText = (new Date({{row.create_date}} * 1000)).toLocaleString();
+                console.log("{{row.total}}")
+                
             {% endfor %}
+
+
         }
         
         function generateReport(){
@@ -67,10 +71,17 @@
                 <td>{{ row.docket_id }}</td>
                 <td>{{ row.created_by }}</td>
                 <td id="{{row.docket_id}}"></td>
-                <td {% if row.status != 'Complete' %}
-                    colspan="2"
+                <td {% if row.status == 'Complete'%}
+                    {% if  row.total == 0 %}
+                        colspan = 2
+                    {% else %}
+                        colspan = 1
+                        
+                    {% endif %}
+                    {% else %}
+                        colspan="2"
                 {% endif %}>{{ row.status }}</td>
-                {% if row.status == 'Complete' %}
+                {% if row.status == 'Complete' and row.total != 0 %}
                     <td> 
                     {% assign row_total = row.total | times: 1.0 %}
                     {% assign percent = row.in_favor | divided_by: row_total %}    

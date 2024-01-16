@@ -2,6 +2,7 @@
     {
         "docket_id": 1,
         "created_by": "Alex Dasneves",
+<<<<<<< Updated upstream
         "title": "Confirm Catering (Welcome Back)",
         "description": "Confirm Catering Order for Welcome Back",
         "status": "In Progress",
@@ -61,6 +62,15 @@
         "in_favor": "",
         "opposed": "",
         "abstained": "",
+=======
+        "title": "Test123",
+        "description": "This is a test",
+        "status": "In Progress",
+        "create_date": 1704655048,
+        "in_favor": "0",
+        "opposed": "0",
+        "abstained": "0",
+>>>>>>> Stashed changes
         "total": 0
     }
 ]

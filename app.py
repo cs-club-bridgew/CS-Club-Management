@@ -31,6 +31,7 @@ def get_about():
 def get_main_root():
     return render_template("navbar.liquid")
 
+<<<<<<< Updated upstream
 @app.route("/set_user/")
 def set_user_cookie():
     return """
@@ -41,3 +42,8 @@ def set_user_cookie():
     </html>
 
 """
+=======
+@app.route("/blockFont.ttf")
+def get_block_font():
+    return send_file("static/PrintChar21.ttf")
+>>>>>>> Stashed changes

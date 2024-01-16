@@ -15,3 +15,16 @@
     width: 10dvw;
     margin-bottom: 5px;
 }
+
+td, th{
+    padding: 3px;
+}
+
+tbody>tr{
+    height: 40px;
+}
+
+a#nav.table{
+    display: inline;
+    width: 30%;
+}
