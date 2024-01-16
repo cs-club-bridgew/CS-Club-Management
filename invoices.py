@@ -160,19 +160,6 @@ def edit_inv_post(ID=None):
         return f"Error: {e}", 500
 
 
-@app.route("/set_user/<ID>")
-def set_user(ID=None):
-    db = connect(**db_settings)
-    if ID is None:
-        return "User ID not supplied", 400
-    if ID not in db.get_available_users():
-        return "User ID not allowed", 403
-    resp = make_response(render_template("invoices/UserID.liquid", id=ID))
-    resp.set_cookie('userID', ID)
-    db.close()
-    return resp, 200
-
-
 @app.route("/invoices/favicon.ico")
 def inv_favicon():
     return send_file("./static/invoices/favicon.ico", mimetype='image/gif')
