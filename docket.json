@@ -2,13 +2,65 @@
     {
         "docket_id": 1,
         "created_by": "Alex Dasneves",
-        "title": "Test123",
-        "description": "This is a test",
-        "status": "Complete",
-        "create_date": 1704655048,
-        "in_favor": "3",
-        "opposed": "1",
-        "abstained": "0",
-        "total": 4
+        "title": "Confirm Catering (Welcome Back)",
+        "description": "Confirm Catering Order for Welcome Back",
+        "status": "In Progress",
+        "create_date": 1704840815,
+        "in_favor": "",
+        "opposed": "",
+        "abstained": "",
+        "total": 0
+    },
+    {
+        "docket_id": 2,
+        "created_by": "Alex Dasneves",
+        "title": "Review Budget Request #2",
+        "description": "One time budget request for our 'End of Year' event needs to be voted on and approved by the officer board",
+        "status": "In Progess",
+        "create_date": 1704840846
+    },
+    {
+        "docket_id": 3,
+        "created_by": "Alex Dasneves",
+        "title": "Potential Fundraising Committee",
+        "description": "Discuss the potential of seeing if any club members would want to be involved in planning fundraisers for the upcoming semester.",
+        "status": "In Progess",
+        "create_date": 1704840971
+    },
+    {
+        "docket_id": 4,
+        "created_by": "Alex Dasneves",
+        "title": "Confirm Curriculum Committee Member",
+        "description": "As the officer board, it is delegated to us to designate 2 students to serve on the curriculum committee. Since Jesse graduated, we need to find one additional member to sit on the board\r\n\r\nCurrent Confirmed Member:\r\nKatie Boscombe",
+        "status": "In Progess",
+        "create_date": 1704841254
+    },
+    {
+        "docket_id": 5,
+        "created_by": "Alex Dasneves",
+        "title": "Ratify Spring 2024 Schedule",
+        "description": "Introduce a motion to ratify the Spring 2024 Schedule for the Computer Science Club",
+        "status": "In Progess",
+        "create_date": 1704849428
+    },
+    {
+        "docket_id": 6,
+        "created_by": "Alex Dasneves",
+        "title": "Guest Speaker Confirmations",
+        "description": "We have 2 remaining spots for Guest Speakers. We should find people who can fill these spots. Ideally, I would like to see iRobot or Panara (Or both)",
+        "status": "In Progess",
+        "create_date": 1704849476
+    },
+    {
+        "docket_id": 7,
+        "created_by": "Alex Dasneves",
+        "title": "Draft Weekly Email to student members",
+        "description": "Draft our weekly student email.\r\nTopic: Welcome Back\r\nDate/Time/Location: 1/24/24, 5pm-6:30, Library Heritage Room\r\nFood will be provided (Pizza, brownies, and water)\r\n\r\nA copy of the constitution should be provided at this meeting\r\n\r\nTentative Agenda:\r\n5:00 -- Doors open. Students can grab food at this time.\r\n\r\n-- Call to Order --\r\n\r\nIntroduction of the officer board and advisors\r\nIntroduction of members in attendance\r\nRead the section of the constitution relating to this semester (Elections and qualifications for being an officer [To be read by Pres])\r\nGo over schedule for semester (Mention open-door officer meetings)\r\n\r\nOfficer Information: We have access to the space starting at 4:30 PM to allow for proper set/up and technology assistance.",
+        "status": "In Progress",
+        "create_date": 1704850571,
+        "in_favor": "",
+        "opposed": "",
+        "abstained": "",
+        "total": 0
     }
 ]
