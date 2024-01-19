@@ -39,7 +39,9 @@ def view_docket_item(ID=None):
         return "Docket ID not supplied", 400
     db.close()
     items = load_docket()
-    return render_template("docket/view.liquid", record=items[int(ID) - 1])
+    record = items[int(ID) - 1]
+    record['description'] = record['description'].split("\n")
+    return render_template("docket/view.liquid", record=record)
 
 @app.post("/docket/new/")
 def add_docket_item():
@@ -82,7 +84,10 @@ def edit_docket_item(ID=None):
                     item['status'] = "Complete"
                 case _:
                     item['status'] = "In Progress"
-    item["total"] = int(item.get("in_favor", "0")) + int(item.get("opposed", "0"))
+    in_fav = '0' if item.get("in_favor", "0") == '' else item.get("in_favor", "0")
+    opposed = '0' if item.get("opposed", "0") == '' else item.get("opposed", "0")
+    
+    item["total"] = int(in_fav) + int(opposed)
     save_docket(items)
     return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
 

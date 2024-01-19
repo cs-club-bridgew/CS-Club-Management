@@ -41,7 +41,10 @@
         </tr>
     </table>
     <h2>{{record.title}}</h2>
-    <p>{{record.description}}</p>
+    <p> {% for line in record.description%}
+            {{line}} <br>
+        {% endfor %}
+    </p>
     {% if record.status == 'Complete' %}
         <h2>Vote Stats:</h2>
         <table>

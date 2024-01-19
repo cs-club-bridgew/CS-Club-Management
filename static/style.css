@@ -1,5 +1,10 @@
 html{
     background-color: #282828;
     color: #66FF66;
-    font-family: "Courier New", Courier, monospace;
+    font-family: blockFont;
+}
+
+@font-face {
+    font-family: blockFont;
+    src: url(/blockFont.ttf);
 }
