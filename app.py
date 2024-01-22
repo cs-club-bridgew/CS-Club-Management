@@ -1,7 +1,7 @@
 from flask import Flask, send_file, make_response
 from flask_liquid import Liquid, render_template
 from db_config import db_settings
-from db_conn import connect
+from db_conn_old import connect
 
 
 app = Flask(__name__)

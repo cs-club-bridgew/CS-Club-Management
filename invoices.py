@@ -1,5 +1,5 @@
 from app import app
-from db_conn import connect
+from db_conn_old import connect
 from db_config import db_settings
 from flask import request, send_file, make_response
 from flask_liquid import render_template
