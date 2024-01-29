@@ -11,6 +11,7 @@
     <link rel="icon" type="image/x-icon" href="/invoices/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit {{id}}</title>
+    <script src="/invoices/invUtils.js"></script>
     <script>
         let products;
         class Address{
@@ -27,7 +28,7 @@
         function AddRow(){
             let table = document.getElementById("products")
             let row = table.insertRow()
-            let rowID = table.rows.length - 1
+            let rowID = table.rows.length - 2
             row.insertCell().innerText = rowID
             row.insertCell().innerHTML = `<input type="text" id="prod${rowID}">`
             row.insertCell().innerHTML = `<input type="text" id="price${rowID}" onChange="updateTotal()">`
@@ -35,41 +36,7 @@
             row.insertCell().innerHTML = `<button onClick="removeRow(${rowID})">x</button>`
 
         }
-        function UpdateApproverBox(){
-            if(document.getElementById("IT3").checked && !document.getElementById("S5").checked){
-                let approve_box = document.getElementById("approver")
-                approve_box.value = "SGA Finance Board"
-                approve_box.disabled = true;
-                document.getElementById("RA1").value = ""
-                document.getElementById("RA2").value = ""
-                document.getElementById("RA3").value = ""
-                document.getElementById("RA4").value = ""
-
-                document.getElementById("RA1").disabled = true
-                document.getElementById("RA2").disabled = true
-                document.getElementById("RA3").disabled = true
-                document.getElementById("RA4").disabled = true
-                document.getElementById("addrDropdown").value = "SGA Budget"
-                document.getElementById("addrDropdown").disabled = true
-
-
-            } else if (document.getElementById("IT3").checked && document.getElementById("S5").checked){
-                let approve_box = document.getElementById("approver")
-                approve_box.value = ""
-                approve_box.disabled = true;
-            } else{
-                let approve_box = document.getElementById("approver")
-                approve_box.value = ""
-                approve_box.disabled = false;
-
-                document.getElementById("RA1").disabled = false
-                document.getElementById("RA2").disabled = false
-                document.getElementById("RA3").disabled = false
-                document.getElementById("RA4").disabled = false
-                document.getElementById("addrDropdown").disabled = false
-                document.getElementById("addrDropdown").value = "New Address"
-            }
-        }
+        
     function updateBoxes(){
         document.getElementById("RA1").value = "{{return_addr[0]}}";
         document.getElementById("RA2").value = "{{return_addr[1]}}";
@@ -82,15 +49,10 @@
         let timezoneOffset = date.getTimezoneOffset() * 60000
         date = new Date(date.getTime() + timezoneOffset)
         document.getElementById("createDate").value = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? 0 : ""}${date.getMonth()+1}-${date.getDate() < 10 ? 0 : ""}${date.getDate()}`;
-        document.getElementById("S1").checked = "{{status}}" == "open";
-        document.getElementById("S2").checked = "{{status}}" == "paid";
-        document.getElementById("S3").checked = "{{status}}" == "closed";
-        document.getElementById("S4").checked = "{{status}}" == "granted";
-        document.getElementById("S5").checked = "{{status}}" == "pending";
-        document.getElementById("S6").checked = "{{status}}" == "cancelled";
-        document.getElementById("IT1").checked = "{{type}}" == "invoice";
-        document.getElementById("IT2").checked = "{{type}}" == "c_invoice";
-        document.getElementById("IT3").checked = "{{type}}" == "sga_budget";
+        
+        document.getElementById("{{type}}").checked = true;
+        document.getElementById("{{status}}").checked = true;
+
         document.getElementById("taxes").value = "{{tax}}";
         document.getElementById("fees").value = "{{fees}}";
         document.getElementById("total").value = "{{total}}";
@@ -107,29 +69,29 @@
             document.getElementById("RA4").value = "";
             
         {% endif %}
-        products = []
-        {% for product in li %}
-        products.push({line: "{{product.line}}", description: "{{product.desc}}", unit_price: "{{product.ammt}}", quantity: "{{product.qty}}"})
-        {% endfor %}
+        // products = []
+        // {% for product in li %}
+        // products.push({line: "{{product.line}}", description: "{{product.desc}}", unit_price: "{{product.ammt}}", quantity: "{{product.qty}}"})
+        // {% endfor %}
         
-        let table = document.getElementById("products");
-        for(let i = 0; i < products.length; i++){
-                        let row = table.insertRow();
-            let cell1 = row.insertCell();
-            let cell2 = row.insertCell();
-            let cell3 = row.insertCell();
-            let cell4 = row.insertCell();
-            let cell5 = row.insertCell();
-            cell1.innerHTML = products[i].line;
-            cell2.innerHTML = `<input type='text' onchange='updateTotal()' id='prod${i+1}'>`;
-            cell2.firstChild.value = products[i].description;
-            cell3.innerHTML = `<input type='text' onchange='updateTotal()' id="price${i+1}">`;
-            cell3.firstChild.value = products[i].unit_price;
-            cell4.innerHTML = `<input type='text' onchange='updateTotal()' id="qty${i+1}">`;
-            cell4.firstChild.value = products[i].quantity;
+        // let table = document.getElementById("products");
+        // for(let i = 0; i < products.length; i++){
+        //                 let row = table.insertRow();
+        //     let cell1 = row.insertCell();
+        //     let cell2 = row.insertCell();
+        //     let cell3 = row.insertCell();
+        //     let cell4 = row.insertCell();
+        //     let cell5 = row.insertCell();
+        //     cell1.innerHTML = products[i].line;
+        //     cell2.innerHTML = `<input type='text' onchange='updateTotal()' id='prod${i+1}'>`;
+        //     cell2.firstChild.value = products[i].description;
+        //     cell3.innerHTML = `<input type='text' onchange='updateTotal()' id="price${i+1}">`;
+        //     cell3.firstChild.value = products[i].unit_price;
+        //     cell4.innerHTML = `<input type='text' onchange='updateTotal()' id="qty${i+1}">`;
+        //     cell4.firstChild.value = products[i].quantity;
 
-            cell5.innerHTML = `<button onclick="RemoveRow(${i+1})">x</button>`;
-        }
+        //     cell5.innerHTML = `<button onclick="RemoveRow(${i+1})">x</button>`;
+        // }
 
         {% for item in valid_addr %}
             addresses.push(new Address("{{item[5]}}", "{{item[1]}}", "{{item[2]}}", "{{item[3]}}", "{{item[4]}}"))
@@ -178,16 +140,6 @@
 
     }
 
-    function removeRow(rowID){
-        let table = document.getElementById("products")
-        table.deleteRow(rowID)
-
-        // Go through the table and update the line IDs
-        for(let i = rowID; i < table.rows.length; i++){
-            table.rows[i].cells[0].innerText = i
-            table.rows[i].cells[4].innerHTML = `<button onClick="removeRow(${i})">x</button>`
-        }
-    }
 
     function submit(){
         if(getDate() == "NaN undefined, NaN"){
@@ -205,7 +157,7 @@
             "date": getDate(),
             "creator": document.getElementById("creator").value,
             "approver": document.getElementById("approver").value,
-            "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
+            "type": getCurrentType(),
             "return_addr": [
                 document.getElementById("RA1").value,
                 document.getElementById("RA2").value,
@@ -217,7 +169,7 @@
             "tax": formatPrice(document.getElementById("taxes").value),
             "fees": formatPrice(document.getElementById("fees").value),
             "total": formatPrice(document.getElementById("total").value),
-            "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : document.getElementById("S5").checked ? "pending" : "cancelled"
+            "status": getCurrentStatus()
         }
         post_data["addr_desc"] = document.getElementById("addrDropdown").value == "New Address" ? prompt("Enter an address description: ") : document.getElementById("addrDropdown").value
 
@@ -248,126 +200,6 @@
             }
         }
     }
-    function getDate(){
-        let date = new Date(document.getElementById("createDate").value)
-        let timezoneOffset = date.getTimezoneOffset() * 60000
-        date = new Date(date.getTime() + timezoneOffset)
-        console.log(1)
-        // Format the date as DD MMM YYYY
-
-        let month = date.getMonth()
-        let day = date.getDate() - 1
-        let year = date.getFullYear()
-        let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-        return `${day} ${months[month]}, ${year}`
-    }
-
-    function preview(){
-
-        if(getDate() == "NaN undefined, NaN"){
-            alert("Please enter a valid date")
-            return
-        }
-
-        let post_data = {
-            "id": document.getElementById("ID").value,
-            "date": getDate(),
-            "creator": document.getElementById("creator").value,
-            "approver": document.getElementById("approver").value,
-            "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
-            "return_addr": [
-                document.getElementById("RA1").value,
-                document.getElementById("RA2").value,
-                document.getElementById("RA3").value,
-                document.getElementById("RA4").value],
-            "li": [
-                
-            ],
-            "tax": formatPrice(document.getElementById("taxes").value),
-            "fees": formatPrice(document.getElementById("fees").value),
-            "total": formatPrice(document.getElementById("total").value),
-            "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : document.getElementById("S5").checked ? "pending" : "cancelled"
-        }
-
-        let table = document.getElementById("products")
-        for(let i = 1; i < table.rows.length; i++){
-            let item = {
-                "line": i,
-                "desc": document.getElementById(`prod${i}`).value,
-                "ammt": formatPrice(document.getElementById(`price${i}`).value),
-                "qty": document.getElementById(`qty${i}`).value,
-                "total": formatPrice(document.getElementById(`price${i}`).value * document.getElementById(`qty${i}`).value)
-            }
-            post_data.li.push(item)
-        }
-        let xhr = new XMLHttpRequest()
-        xhr.open("POST", "/invoices/preview")
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.send(JSON.stringify(post_data))
-        xhr.onreadystatechange = function(){
-            if(xhr.readyState == 4){
-                if(xhr.status == 200){
-                    let win = window.open("", "Preview", "width=800,height=600")
-                    win.document.write(xhr.responseText)
-                } else{
-                    alert("Error Previewing Record")
-                }
-            }
-        }
-
-    }
-
-    function formatPrice(price){
-        let dollars = `${price}`.split(".")[0]
-        let cents = `${price}`.split(".")[1]
-        if(cents == undefined){
-            cents = "00"
-        }
-        if(cents.length == 1){
-            cents += "0"
-        }
-        // Cover floating point errors
-        cents = cents.slice(0,2)
-        return `${dollars}.${cents}`
-    }
-
-    function updateIfSGA(){
-        if(document.getElementById("S4").checked && document.getElementById("IT3").checked){
-            document.getElementById("approver").value = "SGA Finance Board"
-        }
-    }
-
-    function updateAddressFromDropdown(){
-
-        let box_text = document.getElementById("addrDropdown").value
-
-        if(box_text == "New Address"){
-            document.getElementById("RA1").value = ""
-            document.getElementById("RA1").disabled = false
-            document.getElementById("RA2").value = ""
-            document.getElementById("RA2").disabled = false
-            document.getElementById("RA3").value = ""
-            document.getElementById("RA3").disabled = false
-            document.getElementById("RA4").value = ""
-            document.getElementById("RA4").disabled = false
-            return;
-        } else {
-            document.getElementById("RA1").disabled = true
-            document.getElementById("RA2").disabled = true
-            document.getElementById("RA3").disabled = true
-            document.getElementById("RA4").disabled = true
-        }
-
-        addresses.forEach( elt => {
-            if(elt.desc == box_text){
-                document.getElementById("RA1").value = elt.addr1
-                document.getElementById("RA2").value = elt.addr2
-                document.getElementById("RA3").value = elt.addr3
-                document.getElementById("RA4").value = elt.addr4
-            }
-        
-        })
-    }
 
     </script>
 </head>
@@ -375,14 +207,14 @@
     <h1>Edit Record {{id}}</h1>
     <fieldset id="RAddr">
         <legend>Remit Address</legend>
-        <input id="addrDropdown" list="addresses" onchange="updateAddressFromDropdown()" autocomplete>
-        <datalist id="addresses">
-            
-            {% for item in valid_addr %}
-                <option value="{{item[5]}}"></option>
+        <select name="addrDropdown" id="addrDropdown" onchange="updateAddressFromDropdown()">
+    {% for item in valid_addr %}
+                <option value="{{item[5]}}">{{item[5]}}</option>
             {% endfor %}
-            <option value="New Address"></option>
-        </datalist> <br>
+
+            <option value="New Address">New Address</option>
+        </select>
+        <br>
         <input type="text" id="RA1"> <br>
         <input type="text" id="RA2"> <br>
         <input type="text" id="RA3"> <br>
@@ -390,9 +222,9 @@
     </fieldset>
     <fieldset id="Type">
         <legend>Record Type</legend>
-        <input type="radio" id="IT1" onclick="UpdateApproverBox()" name="IT"> Invoice <br>
-        <input type="radio" id="IT2" onclick="UpdateApproverBox()" name="IT"> Credit Invoice <br>
-        <input type="radio" id="IT3" onclick="UpdateApproverBox()" name="IT"> SGA Budget Request
+        {% for valid_type in valid_types %}
+            <input type="radio" name="types" id="{{valid_type}}" onchange="updateIfSGA()"> <label for="{{valid_type}}">{{valid_type}}</label><br/>
+        {% endfor %}
     </fieldset>
     <fieldset>
         <legend>Record Settings</legend>
@@ -409,12 +241,10 @@
     </fieldset>
     <fieldset>
         <legend>Status</legend>
-        <input type="radio" name="statusSelect" id="S1">Open<br/>
-        <input type="radio" name="statusSelect" id="S2">Paid<br/>
-        <input type="radio" name="statusSelect" id="S3">Closed<br/>
-        <input type="radio" name="statusSelect" id="S4" onClick="updateIfSGA()">Granted<br/>
-        <input type="radio" name="statusSelect" id="S5" >Pending<br/>
-        <input type="radio" name="statusSelect" id="S6">Cancelled<br/>
+        {% for valid_status in valid_statuses %}
+            <input type="radio" name="statusSelect" id="{{valid_status}}" onchange="updateIfSGA()"> <label for="{{valid_status}}">{{valid_status}}</label><br/>
+        {% endfor %}
+        
     </fieldset>
     <fieldset>
         <legend>Items</legend>
@@ -426,6 +256,16 @@
                 <th>Quantity</th>
                 <th>Remove</th>
             </tr>
+            {% for product in li %}
+                <tr>
+                <td>{{product.line}}</td>
+                {%  assign lineTotal = product.ammt |  times: product.qty %}
+                <td><input type='text' onchange='updateTotal()' id='prod{{product.line}}' value="{{product.desc}}"></td>
+                <td><input type='number' onchange='updateTotal()' id="price{{product.line}}" value="{{product.ammt}}"></td>
+                <td><input type='number' onchange='updateTotal()' id="qty{{product.line}}" value="{{product.qty}}"></td>
+                <td><button onclick="RemoveRow({{product.line}})" title="Cannot remove existing items" disabled>x</button></td>
+                </tr>
+            {% endfor %}
         </table>
         <button onclick="AddRow()">Add Line</button> <br>
         <label for="taxes">Taxes:</label>

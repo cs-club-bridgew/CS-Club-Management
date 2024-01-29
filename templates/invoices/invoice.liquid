@@ -25,33 +25,7 @@
     #{{id}}</title>
 
     <script>
-    {% if status=="open" %}
-        alert("Invoice status: Open\nAwaiting Payment.");
-    {% endif %}
-
-    {% if status=="closed" %}
-        alert("Invoice status: Closed");
-    {% endif %}
-
-    {% if status=="pending" %}
-        alert("Invoice status: Pending\nAwaiting Approval.");
-    {% endif %}
-
-    {% if status=="rejected" %}
-        alert("Invoice status: Rejected");
-    {% endif %}
-
-    {% if status=="approved" %}
-        alert("Invoice status: Approved\nAwaiting Payment.");
-    {% endif %}
-
-    {% if status=="paid" %}
-        alert("Invoice status: Paid");
-    {% endif %}
-
-    {% if status=="cancelled" %}
-        alert("Invoice status: Cancelled");
-    {% endif %}
+        alert("Invoice Status: {{status}}")
     </script>
 
 </head>
@@ -85,12 +59,14 @@
                 <th>Date</th>
                 <th>Created By</th>
                 <th>Approved By</th>
+                <th>Status</th>
             </tr>
             <tr>
                 <td>{{id}}</td>
                 <td>{{date}}</td>
                 <td>{{creator}}</td>
                 <td>{{approver}}</td>
+                <td>{{status}}</td>
             </tr>
         </table>
         
