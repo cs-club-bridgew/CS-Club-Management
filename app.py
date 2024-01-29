@@ -1,8 +1,8 @@
 from flask import Flask, send_file, make_response, request
 from flask_liquid import Liquid, render_template
 from db_config import db_settings
-from db_conn import connect
-import app_utils
+from utils.db_conn import connect
+import utils.app_utils
 
 app = Flask(__name__)
 liquid = Liquid(app)
@@ -10,9 +10,9 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
-import invoices
-import docket
-import error_handler
+import routes.invoices
+import routes.docket
+import routes.error_handler
 
 @app.route("/style.css")
 def get_main_css():
@@ -44,6 +44,8 @@ def get_block_font():
 
 @app.route("/set_user/<ID>")
 def set_user(ID=None):
+    if ID == '~':
+        raise app_utils.UserAccessNotSignedInException
     db = connect(**db_settings)
     db.is_user_valid(ID)
     resp = make_response(render_template("invoices/UserID.liquid", id=ID))
@@ -57,6 +59,8 @@ def get_set_user():
 
 <script> window.location.href=`/set_user/${prompt("Enter your User ID")}`</script>
 """
+
+
 @app.route("/get_user_name/<ID>")
 def get_user(ID=None):
     db = connect(**db_settings)

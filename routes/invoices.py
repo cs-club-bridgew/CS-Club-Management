@@ -1,9 +1,9 @@
 from app import app
-from db_conn import connect
+from utils.db_conn import connect
 from db_config import db_settings
 from flask import request, send_file, make_response, send_from_directory
 from flask_liquid import render_template
-import app_utils
+import utils.app_utils
 
 
 
@@ -75,16 +75,17 @@ def create_inv():
     db.is_user_valid(request.cookies.get('userID'))
     
     db.can_user_edit_invoice(request.cookies.get('userID'))
-    next_id = db.get_next_invoice_id()
-    addresses = db.get_available_addresses()
     addresses = db.get_available_addresses()
     statuses = db.get_available_statuses()
     types = db.get_available_types()
+    next_id = db.get_next_invoice_id()
     db.close()
     return render_template("invoices/new_invoice.liquid",
                             valid_addr=addresses,
                             valid_statuses=statuses,
-                            valid_types=types)
+                            valid_types=types,
+                            id=next_id,
+                            current_user=request.cookies.get('userID'))
 
 
 @app.post("/invoices/new/")
