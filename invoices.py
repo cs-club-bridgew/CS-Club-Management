@@ -1,17 +1,23 @@
 from app import app
-from db_conn_old import connect
+from db_conn import connect
 from db_config import db_settings
-from flask import request, send_file, make_response
+from flask import request, send_file, make_response, send_from_directory
 from flask_liquid import render_template
+import app_utils
+
 
 
 @app.route("/invoices/")
 def get_root():
     
     db = connect(**db_settings)
-    if request.cookies.get('userID') not in db.get_available_users():
-        return "You are not allowed to access this page", 403
+    userID = request.cookies.get('userID')
+    db.is_user_valid(userID)
+    db.can_user_view_invoice(userID)
+    
     items = db.get_records()
+    
+    
     # Get the name of the column to sort by
     sort_by = request.args.get("sort", "id")
     is_asc = request.args.get("order", "asc") == "asc"
@@ -35,28 +41,16 @@ def get_root():
     return render_template("invoices/main.liquid", records=items)
 
 
-def get_next_id():
-    db = connect(**db_settings)
-    next_id = db.get_next_invoice_id()
-    db.close()
-    return next_id
-
-
-def get_available_addresses():
-    db = connect(**db_settings)
-    addresses = db.get_available_addresses()
-    db.close()
-    return addresses
-
 
 @app.route("/invoices/view/<ID>")
 def view_item(ID=None):
     db = connect(**db_settings)
-
-    if request.cookies.get('userID') not in db.get_available_users():
-        return "You are not allowed to access this page", 403
-    if ID is None:
-        return "Invoice ID not supplied", 400
+    userID = request.cookies.get('userID')
+    db.is_user_valid(userID)
+    
+    db.can_user_view_invoice(request.cookies.get('userID'))
+    
+    
     items = db.get_records()
     db.close()
 
@@ -70,9 +64,7 @@ def view_item(ID=None):
 @app.route('/invoices/logo')
 def get_image():
     db = connect(**db_settings)
-    if request.cookies.get('userID') not in db.get_available_users():
-        db.close()
-        return "You are not allowed to access this page", 403
+    db.is_user_valid(request.cookies.get('userID'))
     db.close()
     return send_file("static/invoices/logo.jpg", mimetype='image/gif')
 
@@ -80,31 +72,32 @@ def get_image():
 @app.route('/invoices/new/')
 def create_inv():
     db = connect(**db_settings)
-    if request.cookies.get('userID') not in db.get_available_users():
-        db.close()
-        return "You are not allowed to access this page", 403
+    db.is_user_valid(request.cookies.get('userID'))
+    
+    db.can_user_edit_invoice(request.cookies.get('userID'))
+    next_id = db.get_next_invoice_id()
+    addresses = db.get_available_addresses()
+    addresses = db.get_available_addresses()
+    statuses = db.get_available_statuses()
+    types = db.get_available_types()
     db.close()
-    addresses = get_available_addresses()
-    return render_template("invoices/new_invoice.liquid", id=get_next_id(),
-                           valid_addr=addresses)
+    return render_template("invoices/new_invoice.liquid",
+                            valid_addr=addresses,
+                            valid_statuses=statuses,
+                            valid_types=types)
 
 
 @app.post("/invoices/new/")
 def create_inv_post():
     db = connect(**db_settings)
-    if request.cookies.get('userID') not in db.get_available_users():
-        db.close()
-        return "You are not allowed to access this page", 403
-
+    db.is_user_valid(request.cookies.get('userID'))
+    db.can_user_edit_invoice(request.cookies.get('userID'))
+    
     # get the data from the json body
     data = request.get_json()
     # add the data to the items list
     try:
-        db.create_record(**data)
-        lines = data.get("li")
-        # update the lines, and add new ones if needed
-        for lineIDX, line in enumerate(lines):
-            db.create_item(data.get("id"), **line)
+        db.create_invoice(**data)
     except Exception as e:
         db.close()
         raise e
@@ -116,20 +109,27 @@ def create_inv_post():
 @app.route("/invoices/edit/<ID>")
 def edit_inv(ID=None):
     db = connect(**db_settings)
-    if request.cookies.get('userID') not in db.get_available_users():
-        return "You are not allowed to access this page", 403
+    
+    db.is_user_valid(request.cookies.get('userID'))
     if ID is None:
         return "Invoice ID not supplied", 400
+    db.can_user_edit_invoice(request.cookies.get('userID'))
+    
     try:
-        item = db.get_record_by_id(ID)
-    except Exception:
+        item = db.get_invoice_by_id(ID)
+    except Exception as e:
         return "Records File not found!" + \
                " Please contact your systems administrator", 500
-    db.close()
     if item is not None:
-        addresses = get_available_addresses()
+        addresses = db.get_available_addresses()
+        statuses = db.get_available_statuses()
+        types = db.get_available_types()
+        db.close()
         return render_template("invoices/edit_invoice.liquid", **item,
-                               valid_addr=addresses)
+                               valid_addr=addresses,
+                               valid_statuses=statuses,
+                               valid_types=types)
+    db.close()
 
     return "Item not found!", 404
 
@@ -138,21 +138,17 @@ def edit_inv(ID=None):
 def edit_inv_post(ID=None):
     db = connect(**db_settings)
 
-    if request.cookies.get('userID') not in db.get_available_users():
-        return "You are not allowed to access this page", 403
+    db.is_user_valid(request.cookies.get('userID'))
     if ID is None:
         return "Invoice ID not supplied", 400
+    db.can_user_edit_invoice(request.cookies.get('userID'))
+    
+    
     # get the data from the json body
     data = request.get_json()
     # add the data to the items list
     try:
         db.update_record(**data)
-        lines = data.get("li")
-        # update the lines, and add new ones if needed
-        for lineIDX, line in enumerate(lines):
-
-            db.update_line(ID, lineIDX + 1, **line)
-        # return the ID
         db.close()
         return f"Record edited with ID: {data.get('id')}", 201
     except Exception as e:
@@ -168,8 +164,6 @@ def inv_favicon():
 @app.post("/invoices/preview")
 def preview():
     db = connect(**db_settings)
-    if request.cookies.get('userID') not in db.get_available_users():
-        db.close()
-        return "You are not allowed to access this page", 403
+    db.is_user_valid(request.cookies.get('userID'))
     data = request.get_json()
     return render_template("invoices/invoice.liquid", **data)
