@@ -241,10 +241,12 @@ class connect:
         return self.mycursor.lastrowid
 
     def get_available_users(self) -> List[str]:
-        sql = "SELECT * FROM allowedUsers"
+        sql = "SELECT userID FROM allowedUsers"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
         return [x[0] for x in myresult]
+    
+    
 
     def close(self):
         self.mydb.commit()
