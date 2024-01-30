@@ -17,9 +17,6 @@
 
         
 
-        let addresses = [];
-        let approverID = ""
-        let creatorID = ""
 
         function UpdateApproverBox(){
             if(document.getElementById("IT3").checked && !document.getElementById("S5").checked){
@@ -111,7 +108,7 @@
                 "date": getDate(),
                 "creator": document.getElementById("creator").value,
                 "approver": document.getElementById("approver").value,
-                "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
+                "type": getCurrentType(),
                 "return_addr": [
                     document.getElementById("RA1").value,
                     document.getElementById("RA2").value,
@@ -124,7 +121,7 @@
                 "tax": formatPrice(document.getElementById("taxes").value),
                 "fees": formatPrice(document.getElementById("fees").value),
                 "total": formatPrice(document.getElementById("total").value),
-                "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : "pending"
+                "status": getCurrentStatus()
             }
             post_data["addr_desc"] = document.getElementById("addrDropdown").value == "New Address" ? prompt("Enter an address description: ") : document.getElementById("addrDropdown").value
             let table = document.getElementById("products")
@@ -312,28 +309,7 @@
             }
         }
         
-        function getApproverUser(){
-            userID = prompt("Enter Approver User ID", '~')
-            // New XHR Request to /get_user_name/<userID>
-            let xhr = new XMLHttpRequest()
-            xhr.open("GET", `/get_user_name/${userID}`)
-            xhr.send()
-            xhr.onreadystatechange = function(){
-                if(xhr.readyState == 4){
-                    if(xhr.status == 200){
-                        document.getElementById("approver").value = xhr.responseText
-                        approverID = userID
-                        if(creatorID == approverID){
-                            alert("Creator cannot be the same as the approver")
-                            document.getElementById("approver").value = ""
-                            approverID = ""
-                        }
-                    } else{
-                        alert("Error Getting User")
-                    }
-                }
-            }
-        }
+        
 
     </script>
 </head>
@@ -407,7 +383,7 @@
         <label for="total">Total:</label>
         <input type="text" id="total" disabled>
     </fieldset>
-    <button onclick="submit()">Update</button>
+    <button onclick="submit()">Create</button>
     <button onclick="preview()">Preview</button>
 </body>
 <style>

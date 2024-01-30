@@ -25,14 +25,41 @@
     #{{id}}</title>
 
     <script>
-        alert("Invoice Status: {{status}}")
+
+    function getCookie(name) {
+        var dc = document.cookie;
+        var prefix = name + "=";
+        var begin = dc.indexOf("; " + prefix);
+        if (begin == -1) {
+            begin = dc.indexOf(prefix);
+            if (begin != 0) return null;
+        }
+        else
+        {
+            begin += 2;
+            var end = document.cookie.indexOf(";", begin);
+            if (end == -1) {
+            end = dc.length;
+            }
+        }
+        // because unescape has been deprecated, replaced with decodeURI
+        //return unescape(dc.substring(begin + prefix.length, end));
+        return decodeURI(dc.substring(begin + prefix.length, end));
+    } 
+
+        var myCookie = getCookie("printing");
+
+        if (myCookie == null) {
+            // do cookie doesn't exist stuff;
+            alert("Invoice Status: {{status}}")
+        }
     </script>
 
 </head>
 <body>
     <div class="paper">
         {% comment %} <img src="https://admissions-fitchburgstate-edu.cdn.technolutions.net/www/images/kisspng-bridgewater-state-university-attleboro-clark-unive-5b01d94fa8ee30_333518441526847823692_A.jpg" class="logo"> {% endcomment %}
-        <img src="/invoices/logo" class="logo">
+        <img src="/invoices/logo.jpg" class="logo">
         <div class="retAddr">
         <p>
            {% for item in return_addr %}
@@ -125,8 +152,8 @@
 <style>
     .paper{
         position: absolute;
-        width: 7.5in;
-        height: 10in;
+        width: 8.5in;
+        height: 11in;
         /*outline: 1px solid black;*/
         padding: .5in
     }
@@ -146,9 +173,12 @@
         border: .01in solid crimson;
         border-top: .03in solid Crimson;
         margin-bottom: -6px;
+        width: 8.5in;
     }
     .top2{
         border: .01in solid black;
+        width: 8.5in;
+
     }
     h1.hr_text{
         position:absolute;
@@ -173,6 +203,10 @@
     fieldset{
         width: 30%;
     }
+    html{
+        height: 11in;
+        width: 8in;
+    }
     
     td{
         padding: 4px;
@@ -196,18 +230,19 @@
 
     .bot1{
         position: absolute;
-        width: 7.5in;
         bottom: 0.5in;
         border: .01in solid crimson;
         border-top: .03in solid crimson;
         margin-bottom: -6px;
+        width: 8.5in;
     }
     .bot2{
         position: absolute;
-        width: 7.5in;
         bottom: 0.45in;
         margin-bottom: -6px;
         border: .01in solid black;
+        width: 8.5in;
+
     }
     th, td, tr{
         text-transform: | capitalize;

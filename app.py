@@ -2,7 +2,7 @@ from flask import Flask, send_file, make_response, request
 from flask_liquid import Liquid, render_template
 from db_config import db_settings
 from utils.db_conn import connect
-import utils.app_utils
+import utils.app_utils as app_utils
 
 app = Flask(__name__)
 liquid = Liquid(app)

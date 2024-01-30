@@ -1,7 +1,7 @@
 import mysql.connector
 from typing import List, Dict, NoReturn
 import datetime
-import app_utils
+import utils.app_utils as app_utils
 
 class connect:
     def __init__(self, host, user, passwd, db):
@@ -11,7 +11,7 @@ class connect:
             passwd=passwd,
             database=db
         )
-        self.cursor = self.db.cursor()
+        self.cursor = self.db.cursor(buffered=True)
     
     def get_records(self) -> List:
         return_list = []
@@ -63,10 +63,11 @@ e.addrSeq and a.statusID = f.statusID;
         user = self.get_user_by_id(id)
         return user[1]
     
-    def get_user_by_id(self, id: str) -> str:
+    def get_user_by_id(self, id: str) -> list:
         sql = "SELECT userID, user_full_name, userSeq FROM allowedUsers where userID = %s"
         self.cursor.execute(sql, (id,))
         user_data = self.cursor.fetchone()
+        #print(user_data)
         return user_data
     
     def get_user_full(self, seq: str) -> list[str]:
@@ -86,40 +87,47 @@ e.addrSeq and a.statusID = f.statusID;
         self.cursor.execute(perm_sql, (userSeq,))
         return self.cursor.fetchone()
     
-    def can_user_edit_invoice(self, userID) -> None | NoReturn:
+    def can_user_edit_invoice(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[0] != 1 and user_perms[4] != 1:
             raise app_utils.UserAccessInvoiceNoEditException
+        return True
     
-    def can_user_view_invoice(self, userID) -> None | NoReturn:
+    def can_user_view_invoice(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[1] != 1 and user_perms[4] != 1:
             raise app_utils.UserAccessInvoiceNoReadException
+        return True
     
-    def can_user_edit_docket(self, userID) -> None | NoReturn:
+    def can_user_edit_docket(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[2] != 1 and user_perms[5] != 1:
             raise app_utils.UserAccessDocketNoEditException
+        return True
     
-    def can_user_view_docket(self, userID) -> None | NoReturn:
+    def can_user_view_docket(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[3] != 1 and user_perms[5] != 1:
             raise app_utils.UserAccessDocketNoReadException
+        return True
     
-    def is_user_invoice_admin(self, userID) -> None | NoReturn:
+    def is_user_invoice_admin(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[4] != 1:
             raise app_utils.UserAccessInvoiceNoAdminException
+        return True
     
-    def is_user_docket_admin(self, userID) -> None | NoReturn:
+    def is_user_docket_admin(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[5] != 1:
             raise app_utils.UserAccessDocketNoAdminException
+        return True
     
-    def can_user_approve_invoice(self, userID) -> None | NoReturn:
+    def can_user_approve_invoice(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if (user_perms[6] != 1) and (not user_perms[4]):
             raise app_utils.UserAccessInvoiceNoApproveException
+        return True
 
     def validate_address(self, address: List[str], addr_desc: str) -> int:
         self.cursor.execute("SELECT * FROM addresses")
@@ -178,19 +186,22 @@ e.addrSeq and a.statusID = f.statusID;
                        type: str, return_addr: List[str], tax: float,
                        fees: int, total: float, status: str, date: str,
                        li: list, addr_desc: str) -> int:
-        creator_userID = self.get_user_seq(creator)
-        approver_userID = self.get_user_seq(approver)
+        creator_userSeq = self.get_user_seq(creator)
+        approver_userSeq = self.get_user_seq(approver)
+        
+        creator_userID = self.get_user_id(creator_userSeq)
+        approver_userID = self.get_user_id(approver_userSeq)
+        
+        print(creator)
         if(not self.can_user_edit_invoice(creator_userID)):
             return -1
         if(not self.can_user_approve_invoice(approver_userID)):
             return -1  
         addr_id = self.validate_address(return_addr, addr_desc)
         status_id = self.validate_status(status)
-        creator = self.get_user_seq(creator)
+        creator = creator_userSeq
         typeID = self.get_type_id(type)
-        approver = self.get_user_seq(approver)
-        if(not self.can_user_edit_invoice(creator_userID)):
-            return -1
+        approver = approver_userSeq
         val = (id, getDateObj(date), creator, approver, typeID, addr_id,
                tax, fees, total, status_id)
         sql = """
@@ -204,7 +215,7 @@ e.addrSeq and a.statusID = f.statusID;
         for line in li:
             lineIDs.append(self.create_line(id, line))
         
-        return [id, lineIDs]
+        return [id, lineIDs, approver == 0]
         
     def create_line(self, invoiceID, line: Dict) -> int:
         sql = """
@@ -239,13 +250,14 @@ e.addrSeq and a.statusID = f.statusID;
     def update_record(self, id: int, approver: str,
                        type: str, return_addr: List[str], tax: float,
                        fees: int, total: float, status: str, date: str,
-                       li: list, addr_desc: str):
+                       li: list, addr_desc: str, creator: str):
         approver = self.get_user_seq(approver)
         if(not self.can_user_approve_invoice(approver)):
             return -1
         addr_id = self.validate_address(return_addr, addr_desc)
         status_id = self.validate_status(status)
         typeID = self.get_type_id(type)
+        
         val = (getDateObj(date), approver, typeID, addr_id,
                tax, fees, total, status_id, id)
         sql = """
@@ -257,17 +269,26 @@ e.addrSeq and a.statusID = f.statusID;
         self.db.commit()
         for line in li:
             self.update_line(id, line)
+        if approver == 0:
+            return 1 # Invoice isn't approved yet. Send an email to all Approvers
         
     def update_line(self, invoiceID: int, line: Dict):
         sql = """
         UPDATE line SET `desc` = %s, unit_price = %s, qty = %s, total = %s
         WHERE invoiceID = %s AND lineID = %s
         """
+        # Before we update, check if the line exists
+        sql_check = """
+        SELECT * FROM line WHERE invoiceID = %s AND lineID = %s
+        """
+        val_check = (invoiceID, line.get("line"))
+        self.cursor.execute(sql_check, val_check)
+        if self.cursor.rowcount == 0:
+            self.create_line(invoiceID, line)
+            return
         values = (line.get("desc"), line.get("ammt"), line.get("qty"), line.get("total"), invoiceID, line.get("line"))
         self.cursor.execute(sql, values)
         self.db.commit()
-        if self.cursor.rowcount == 0:
-            self.create_line(invoiceID, line)
             
     def get_available_users(self) -> List[str]:
         sql = "SELECT userID FROM allowedUsers"
@@ -338,6 +359,12 @@ e.addrSeq and a.statusID = f.statusID and a.invoiceID = %s;
                     ]
             }
         return invoice_data
+
+    def get_approver_emails(self) -> list[str]:
+        sql = "select a.emailAddr from allowedusers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1;"
+        self.cursor.execute(sql)
+        myresult = self.cursor.fetchall()
+        return [x[0] for x in myresult]
 
 def format_date(date: datetime.datetime) -> str:
     return date.strftime("%d %b, %Y")

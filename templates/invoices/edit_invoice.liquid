@@ -14,17 +14,7 @@
     <script src="/invoices/invUtils.js"></script>
     <script>
         let products;
-        class Address{
-            constructor(desc, addr1, addr2, addr3, addr4){
-                this.desc = desc
-                this.addr1 = addr1
-                this.addr2 = addr2
-                this.addr3 = addr3
-                this.addr4 = addr4
-            }
-        }
 
-        let addresses = [];
         function AddRow(){
             let table = document.getElementById("products")
             let row = table.insertRow()
@@ -231,11 +221,9 @@
         <label for="ID">Record ID</label>
         <input type="text" name="ID" id="ID" disabled> <br>
         <label for="creator">Created By:</label>
-        <input type="text" id="creator" disabled><br>
-        <label for="approver">Approved By:</label>
-        <input type="text" id="approver" {% if status!="pending" or type == "sga_budget"%}
-            disabled
-        {% endif %}><br>
+        <input type="text" id="creator" disabled> <button disabled title="Creator cannot be changed after creation">Get Creator</button><br>
+        <label for="approver" >Approved By:</label>
+        <input type="text" id="approver" disabled> <button id="approverBtn" onclick="getApproverUser()">Get Approver</button><br>
         <label for="createDate">Creation Date</label>
         <input type="date" name="createDate" id="createDate">
     </fieldset>

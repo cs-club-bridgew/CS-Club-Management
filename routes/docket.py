@@ -1,11 +1,11 @@
 from app import app
-from db_conn import connect
+from utils.db_conn import connect
 from flask import request, send_file, make_response
 from flask_liquid import render_template
 from db_config import db_settings
 import json
 import time
-from docket_report import generate_docket_report
+from utils.docket_report import generate_docket_report
 
 def load_docket():
     try:

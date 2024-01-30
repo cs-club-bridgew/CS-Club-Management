@@ -1,3 +1,7 @@
+let addresses = [];
+let approverID = ""
+let creatorID = ""
+
 function getDate(){
     let date = new Date(document.getElementById("createDate").value)
     let timezoneOffset = date.getTimezoneOffset() * 60000
@@ -74,15 +78,13 @@ function updateIfSGA(){
     if(recordType == "SGA Budget Request" && status == "Granted"){
         let approverBox = document.getElementById("approver")
         approverBox.value = "SGA Finance Board"
-        approverBox.disabled = true
+        document.getElementById("approverBtn").disabled = true
     }
 
     if(recordType != "SGA Budget Request" && status == "Pending"){
-        let approverBox = document.getElementById("approver")
-        approverBox.disabled = false
+        document.getElementById("approverBtn").disabled = false
     } else if (recordType == "SGA Budget Request" && status == "Pending"){
-        let approverBox = document.getElementById("approver")
-        approverBox.disabled = true
+        document.getElementById("approverBtn").disabled = true
     }
 }
 
@@ -179,5 +181,28 @@ class Address{
         this.addr2 = addr2
         this.addr3 = addr3
         this.addr4 = addr4
+    }
+}
+
+function getApproverUser(){
+    userID = prompt("Enter Approver User ID", '~')
+    // New XHR Request to /get_user_name/<userID>
+    let xhr = new XMLHttpRequest()
+    xhr.open("GET", `/get_user_name/${userID}`)
+    xhr.send()
+    xhr.onreadystatechange = function(){
+        if(xhr.readyState == 4){
+            if(xhr.status == 200){
+                document.getElementById("approver").value = xhr.responseText
+                approverID = userID
+                if(creatorID == approverID){
+                    alert("Creator cannot be the same as the approver")
+                    document.getElementById("approver").value = ""
+                    approverID = ""
+                }
+            } else{
+                alert("Error Getting User")
+            }
+        }
     }
 }

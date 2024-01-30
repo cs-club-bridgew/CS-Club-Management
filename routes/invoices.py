@@ -1,9 +1,9 @@
 from app import app
 from utils.db_conn import connect
 from db_config import db_settings
-from flask import request, send_file, make_response, send_from_directory
+from flask import request, send_file
 from flask_liquid import render_template
-import utils.app_utils
+from utils.email_utils import alert_invoice
 
 
 
@@ -61,7 +61,7 @@ def view_item(ID=None):
     return "Item not found!", 404
 
 
-@app.route('/invoices/logo')
+@app.route('/invoices/logo.jpg')
 def get_image():
     db = connect(**db_settings)
     db.is_user_valid(request.cookies.get('userID'))
@@ -97,11 +97,12 @@ def create_inv_post():
     # get the data from the json body
     data = request.get_json()
     # add the data to the items list
-    try:
-        db.create_invoice(**data)
-    except Exception as e:
-        db.close()
-        raise e
+    # try:
+    results = db.create_invoice(**data)
+    if results[2]:
+        # Send email
+        alert_invoice(results[0])
+    
     # return the ID
     db.close()
     return "Record created with ID: {}".format(data.get("id")), 201
@@ -147,14 +148,21 @@ def edit_inv_post(ID=None):
     
     # get the data from the json body
     data = request.get_json()
+    print(data)
     # add the data to the items list
     try:
-        db.update_record(**data)
+        seq = db.update_record(**data)
         db.close()
+        if seq == -1:
+            return "Record not updated!", 404
+        if seq == 1:
+            # Send email
+            alert_invoice(ID)
         return f"Record edited with ID: {data.get('id')}", 201
     except Exception as e:
         db.close()
-        return f"Error: {e}", 500
+        raise e
+        # return f"Error: {e}", 500
 
 
 @app.route("/invoices/favicon.ico")

@@ -1,5 +1,5 @@
 from app import app
-import app_utils
+import utils.app_utils as app_utils
 from flask_liquid import render_template
 
 @app.errorhandler(app_utils.UserAccessInvoiceNoEditException)
