@@ -4,3 +4,27 @@ html{
     
 }
 
+td, th{
+    padding: 3px;
+}
+
+thead>tr{
+    font-weight: unset;
+    text-decoration: underline;
+}
+
+tbody>tr{
+    height: 40px;
+}
+
+.MainTable{
+    width: 75%
+}
+table, td, th{
+    border-collapse: collapse;
+    border: 1px solid black;
+    text-transform: capitalize;
+}
+th, label, input{
+    cursor: pointer;
+}

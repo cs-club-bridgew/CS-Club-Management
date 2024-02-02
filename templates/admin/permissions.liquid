@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Permissions</title>
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    {% render "navbar.liquid" %}
+
+    <br><br>
+    <table>
+        <tr>
+            <th>User Name</th>
+            <th colspan="3">Invoices</th>
+            <th colspan="3">Docket</th>
+            <th>Admin</th>
+            <th colspan="2">User Preferences</th>
+        </tr>
+        <tr>
+            <th></th>
+            <th>R</th>
+            <th>W</th>
+            <th>A</th>
+            <th>R</th>
+            <th>W</th>
+            <th>A</th>
+            <th>U</th>
+            <th>Approve</th>
+            <th>Emails</th>
+        </tr>
+        {% for user in perms %}
+            <tr>
+                <td>{{user[0]}}</td>
+                <td>{{user[1]}}</td>
+                <td>{{user[2]}}</td>
+                <td>{{user[3]}}</td>
+                <td>{{user[4]}}</td>
+                <td>{{user[5]}}</td>
+                <td>{{user[6]}}</td>
+                <td>{{user[7]}}</td>
+                <td>{{user[8]}}</td>
+                <td>{{user[9]}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

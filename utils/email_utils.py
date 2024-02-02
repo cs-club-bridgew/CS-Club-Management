@@ -7,9 +7,9 @@ from email import encoders
 from pathlib import Path
 from routes.docket import load_docket, save_docket
 import time
-
 from utils.db_conn import connect
 from db_config import db_settings
+import pdfkit 
 
 
 def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_host, username, password, attachments=[], use_tls=False, use_ssl=True):
@@ -43,13 +43,12 @@ def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_
     s.quit()
     
 def convert_url_to_pdf(url, pdf_path):
-    import pdfkit 
     options = {
         'page-height': '11in',
         'page-width': '8.5in',
         'cookie': [('userID', '~'), ('printing', '1')]
     }
-    pdfkit.from_url('http://localhost:5000/invoices/view/1', 'out.pdf', options=options) 
+    pdfkit.from_url(url, pdf_path, options=options) 
 
 
 def format_lines(lines: list) -> str:
@@ -63,9 +62,8 @@ def format_lines(lines: list) -> str:
     ret_str = ""
     
     
-    for item in headers:
-        print(item)
-        ret_str += f"{item:^{col_widths[headers.index(item)]}}"
+    for i, item in enumerate(headers):
+        ret_str += f"{item:^{col_widths[i]}}"
     ret_str += "\n"
     
     for line in lines:
@@ -97,11 +95,10 @@ def alert_user_of_new_invoice(invoice_id):
     invoice = db.get_invoice_by_id(invoice_id)
     subject = f"New Financial Record: {invoice['type']} #{invoice_id}"
     address = '\n'.join(invoice['return_addr'])
-    print(type(invoice['date']))
     lines = format_lines(invoice['li'])
     
     message_body = f"""
-    Hello,
+Hello,
 A new invoice has been created by {invoice['creator']} and is awaiting approval from an authorized user.
 
 A copy of the PDF invoice is attached.
@@ -134,7 +131,13 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
               [], [], 'smtp.gmail.com:465', 'cclub9516@gmail.com',
               'xubi qrlo smkq vtax', attachments=[f'Invoice{invoice_id}.pdf'], use_ssl=True)
     
-def alert_invoice(invoice_id):
+def alert_invoice_new(invoice_id):
+    convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
+    alert_user_of_new_invoice(invoice_id)
+    create_docket_item(invoice_id)
+    
+    
+def alert_invoice_update(invoice_id):
     convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
     alert_user_of_new_invoice(invoice_id)
     create_docket_item(invoice_id)

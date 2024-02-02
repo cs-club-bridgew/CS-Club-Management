@@ -13,6 +13,7 @@ app.config.update(
 import routes.invoices
 import routes.docket
 import routes.error_handler
+import routes.admin
 
 @app.route("/style.css")
 def get_main_css():
@@ -28,7 +29,15 @@ def get_invoice_utils():
 
 @app.route("/navbar/")
 def get_navbar():
-    return render_template("navbar.liquid")
+    userAdmin = False
+    db = connect(**db_settings)
+    if request.cookies.get('userID'):
+        try:
+            userAdmin = db.is_user_admin(request.cookies.get('userID'))
+        except:
+            pass
+    print(request.cookies.get('userID'))
+    return render_template("navbar.liquid", isUserAdmin=userAdmin)
 
 @app.route("/about/")
 def get_about():
@@ -36,7 +45,7 @@ def get_about():
 
 @app.route("/")
 def get_main_root():
-    return render_template("navbar.liquid")
+    return get_navbar()
 
 @app.route("/blockFont.ttf")
 def get_block_font():

@@ -70,6 +70,54 @@ e.addrSeq and a.statusID = f.statusID;
         #print(user_data)
         return user_data
     
+    def create_user(self, user_data: Dict) -> int:
+        sql = """INSERT INTO allowedUsers (userID, user_full_name, emailAddr) VALUES (%s, %s, %s)"""
+        vals = (user_data.get("UserID"),
+                user_data.get("userName"),
+                user_data.get("emailID"))
+        self.cursor.execute(sql, vals)
+        self.db.commit()
+        return self.cursor.lastrowid
+    
+    def get_users(self) -> List:
+        sql = "SELECT * FROM allowedUsers"
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+    
+    def create_user_perms(self, userSeq, perms: dict):
+        sql = """
+        INSERT INTO permissions
+        (userSeq, invEdit, invView, docEdit, docView, invAdmin, docAdmin,
+        canApproveInvoices, canReceiveEmails, userAdmin) VALUES
+        (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """
+        vals = (
+            userSeq,
+            perms.get("EI") == "on",
+            perms.get("RI") == "on",
+            perms.get("ED") == "on",
+            perms.get("RD") == "on",
+            perms.get("AI") == "on",
+            perms.get("AD") == "on",
+            perms.get("AP") == "on",
+            perms.get("RE") == "on",
+            perms.get("UA") == "on"
+        )
+        self.cursor.execute(sql, vals)
+        self.db.commit()
+    
+    def get_all_user_perms(self) -> List:
+        sql = """
+        SELECT a.user_full_name, b.invEdit, b.invView, b.docEdit, b.docView,
+        b.invAdmin, b.docAdmin, b.canApproveInvoices, b.userAdmin,
+        b.canReceiveEmails from allowedUsers a, permissions b where
+        a.userSeq = b.userSeq and a.user_full_name != '' and a.user_full_name 
+        not like 'SGA%';
+        """
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+    
+    
     def get_user_full(self, seq: str) -> list[str]:
         sql = "SELECT userID, user_full_name, userSeq FROM allowedUsers where userSeq = %s"
         self.cursor.execute(sql, (seq,))
@@ -83,7 +131,7 @@ e.addrSeq and a.statusID = f.statusID;
     
     def get_user_permissions(self, userID: str) -> list[bool]:
         userSeq = self.get_user_by_id(userID)[2]
-        perm_sql = "SELECT invEdit, invView, docEdit, docView, invAdmin, docAdmin, canApproveInvoices from permissions where userSeq = %s"
+        perm_sql = "SELECT invEdit, invView, docEdit, docView, invAdmin, docAdmin, canApproveInvoices, userAdmin from permissions where userSeq = %s"
         self.cursor.execute(perm_sql, (userSeq,))
         return self.cursor.fetchone()
     
@@ -117,7 +165,19 @@ e.addrSeq and a.statusID = f.statusID;
             raise app_utils.UserAccessInvoiceNoAdminException
         return True
     
+    def is_user_admin(self, userID) -> bool | NoReturn:
+        user_perms = self.get_user_permissions(userID)
+        if user_perms[7] != 1:
+            raise app_utils.UserAccessNoAdminException
+        return True
+    
     def is_user_docket_admin(self, userID) -> bool | NoReturn:
+        user_perms = self.get_user_permissions(userID)
+        if user_perms[5] != 1:
+            raise app_utils.UserAccessDocketNoAdminException
+        return True
+    
+    def is_user_app_admin(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
         if user_perms[5] != 1:
             raise app_utils.UserAccessDocketNoAdminException

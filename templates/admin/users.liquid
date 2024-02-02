@@ -4,8 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Administration</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    {% render "/navbar" %}
+    {% render "navbar.liquid" %}
+    <h1>User Administration</h1>
+    <p>Here you can manage users.</p>
+    <a class="nav" href="/admin/users/create">Create a new user</a>
+    <br><br>
+    <table>
+        <tr>
+            <th>User Seq</th>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Edit</th>
+        </tr>
+        {% for user in users %}
+            <tr>
+                <td>{{user[0]}}</td>
+                <td style="text-transform: none;">{{user[1]}}</td>
+                <td>{{user[2]}}</td>
+                <td class="nav" style="text-transform: none;"><a class="navsub" href="mailto:{{user[3]}}">{{user[3]}}</a></td>
+                <td class="nav"><a href="/admin/users/edit/{{user[0]}}" class="navsub">Edit</a></td>
+            </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
