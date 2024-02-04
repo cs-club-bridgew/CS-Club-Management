@@ -56,8 +56,10 @@ def set_user(ID=None):
         raise app_utils.UserAccessNotSignedInException
     db = connect(**db_settings)
     db.is_user_valid(ID)
+    theme = db.get_user_color_theme(ID)
     resp = make_response(render_template("invoices/UserID.liquid", id=ID))
     resp.set_cookie('userID', ID)
+    resp.set_cookie('themeID', str(theme[0]))
     db.close()
     return resp, 200
 
@@ -79,3 +81,12 @@ def get_user(ID=None):
 @app.get("/utils.js")
 def getUtilsJS():
     return send_file("static/utils.js")
+
+
+@app.get("/1.css")
+def get_theme_1():
+    return send_file("static/themes/1.css")
+
+@app.get("/2.css")
+def get_theme_2():
+    return send_file("static/themes/2.css")

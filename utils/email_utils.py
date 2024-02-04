@@ -90,7 +90,7 @@ def create_docket_item(invoice_id):
     return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
 
 
-def alert_user_of_new_invoice(invoice_id):
+def alert_users_of_new_invoice(invoice_id):
     db = connect(**db_settings)
     invoice = db.get_invoice_by_id(invoice_id)
     subject = f"New Financial Record: {invoice['type']} #{invoice_id}"
@@ -131,13 +131,54 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
               [], [], email_settings["smtp_host"], email_settings['username'],
               email_settings['password'], attachments=[f'Invoice{invoice_id}.pdf'], use_ssl=True)
     
+def alert_users_of_updated_invoice(invoice_id):
+    db = connect(**db_settings)
+    invoice = db.get_invoice_by_id(invoice_id)
+    subject = f"New Financial Record: {invoice['type']} #{invoice_id}"
+    address = '\n'.join(invoice['return_addr'])
+    lines = format_lines(invoice['li'])
+    
+    message_body = f"""
+Hello,
+An invoice has been updated! The original invoice was created by {invoice['creator']} and is awaiting approval from an authorized user.
+
+A copy of the PDF invoice is attached.
+
+Invoice Details:
+Record ID: {invoice_id}
+Total Lines: {len(invoice['li'])}
+Created By: {invoice['creator']}
+Created On: {invoice['date']}
+Invoice Address:
+{address}
+
+Line Details:
+{lines}
+
+Taxes: ${invoice['tax']}
+Fees: ${invoice['fees']}
+Total: ${invoice['total']}
+
+A officer docket item has been generated to review this invoice.
+
+This is an automated email sent from an unmonitored inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+    """
+    email_recip = db.get_approver_emails()
+    db.close()
+    
+    
+    send_email(subject, message_body, 
+              "cclub9516@gmail.com", email_recip,
+              [], [], email_settings["smtp_host"], email_settings['username'],
+              email_settings['password'], attachments=[f'Invoice{invoice_id}.pdf'], use_ssl=True)
+    
 def alert_invoice_new(invoice_id):
     convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
-    alert_user_of_new_invoice(invoice_id)
+    alert_users_of_new_invoice(invoice_id)
     create_docket_item(invoice_id)
     
     
 def alert_invoice_update(invoice_id):
     convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
-    alert_user_of_new_invoice(invoice_id)
+    alert_users_of_updated_invoice(invoice_id)
     create_docket_item(invoice_id)

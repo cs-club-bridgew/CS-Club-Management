@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+
+    <script src="/utils.js" defer></script>
 </head>
-<body>
+<body onload = "getStyle()">
 
     <div class="navbar">
       <a href="/">Home</a>
@@ -23,7 +27,6 @@
         <div class="dropdown-content">
           <a href="/admin/status/">Statuses</a>
           <a href="/admin/record/">Record Types</a>
-          <a href="/admin/perm_table/">Permission Table</a>
           <a href="/admin/users/">Users</a>
           <a href="/admin/addresses/">Addresses</a>
           <a href="/admin/perms/">User Permissions</a>

@@ -1,9 +1,3 @@
-html{
-    background-color: #282828;
-    color: #66FF66;
-    
-}
-
 td, th{
     padding: 3px;
 }
@@ -33,14 +27,12 @@ th, label, input{
 /* Navbar container */
 .navbar {
 overflow: hidden;
-background-color: #282828;
 }
 
 /* Links inside the navbar */
 .navbar a {
 float: left;
 font-size: 16px;
-color:  #66FF66;;
 text-align: center;
 padding: 14px 16px;
 text-decoration: none;
@@ -57,7 +49,6 @@ overflow: hidden;
 font-size: 16px;
 border: none;
 outline: none;
-color: #66FF66;
 padding: 14px 16px;
 background-color: inherit;
 font-family: inherit; /* Important for vertical align on mobile phones */
@@ -65,16 +56,12 @@ margin: 0; /* Important for vertical align on mobile phones */
 }
 
 /* Add a red background color to navbar links on hover */
-.navbar a:hover, .dropdown:hover .dropbtn {
-background-color: #66FF66;
-color: #282828;
-}
+
 
 /* Dropdown content (hidden by default) */
 .dropdown-content {
 display: none;
 position: absolute;
-background-color: #66FF66;
 min-width: 160px;
 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 z-index: 1;
@@ -82,30 +69,20 @@ z-index: 1;
 
 /* Links inside the dropdown */
 .dropdown-content a {
-float: none;
-color: #282828;
-background-color: #66FF66;
-padding: 12px 16px;
-text-decoration: none;
-display: block;
-text-align: left;
+    float: none;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
 }
 
 .nav {
     padding: 8px;
-    color: #66FF66;
-    background-color: #282828;
-}
-.nav:hover {
-    background-color: #66FF66;
-    color: #282828;
+
 }
 
-/* Add a grey background color to dropdown links on hover */
-.dropdown-content a:hover {
-background-color: #282828;
-color: #66FF66;
-}
+
+
 
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
@@ -117,7 +94,6 @@ outline: 1px solid black;
 }
 
 html{
-background-color: #282828;
 font-family: blockFont;
 
 }
@@ -126,13 +102,5 @@ font-family: blockFont;
 src: url(/blockFont.ttf);
 }
 
-a.navsub{
-color: #66FF66;
-background-color: #282828;
-}
 
-.nav:hover>*{
-    background-color: #66FF66;
-    color: #282828;
-}
   

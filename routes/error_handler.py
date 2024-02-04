@@ -16,3 +16,7 @@ def user_no_inv_edit(e):
 @app.errorhandler(app_utils.UserAccessNotSignedInException)
 def user_no_userid(e):
     return render_template("exceptions/UserAccessNotSignedIn.liquid"), 403
+
+@app.errorhandler(app_utils.UserAccessDocketNoAdminException)
+def user_no_app_admin(e):
+    return render_template("exceptions/UserAccessNotAdminException.liquid"), 403

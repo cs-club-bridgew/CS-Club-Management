@@ -121,7 +121,7 @@ e.addrSeq and a.statusID = f.statusID;
         sql = """SELECT a.user_full_name, a.userID, a.emailAddr,
         b.invEdit, b.invView, b.docEdit, b.docView, b.invAdmin,
         b.docAdmin, b.canApproveInvoices, b.userAdmin,
-        b.canReceiveEmails from allowedUsers a, permissions b where
+        b.canReceiveEmails, a.theme from allowedUsers a, permissions b where
         a.userSeq = b.userSeq and a.userSeq = %s;"""
         self.cursor.execute(sql, (userSeq,))
         return self.cursor.fetchone()
@@ -187,7 +187,7 @@ e.addrSeq and a.statusID = f.statusID;
     
     def is_user_app_admin(self, userID) -> bool | NoReturn:
         user_perms = self.get_user_permissions(userID)
-        if user_perms[5] != 1:
+        if user_perms[7] != 1:
             raise app_utils.UserAccessDocketNoAdminException
         return True
     
@@ -196,6 +196,12 @@ e.addrSeq and a.statusID = f.statusID;
         if (user_perms[6] != 1) and (not user_perms[4]):
             raise app_utils.UserAccessInvoiceNoApproveException
         return True
+    
+    def get_user_color_theme(self, userID) -> int:
+        sql = """
+        SELECT theme FROM allowedUsers where userID = %s"""
+        self.cursor.execute(sql, (userID,))
+        return self.cursor.fetchone()
 
     def validate_address(self, address: List[str], addr_desc: str) -> int:
         self.cursor.execute("SELECT * FROM addresses")
@@ -309,8 +315,9 @@ e.addrSeq and a.statusID = f.statusID;
                 return valid_status[0]
         return self.create_type(typeDesc)
     
+    
     def create_type(self, typeDesc: str) -> int:
-        sql = """INSERT INTO recordtype (typeDesc) VALUES (%s)"""
+        sql = """INSERT INTO recordtype (recordName) VALUES (%s)"""
         self.cursor.execute(sql, (typeDesc,))
         self.db.commit()
         return self.cursor.lastrowid
@@ -379,12 +386,27 @@ e.addrSeq and a.statusID = f.statusID;
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         return [x[0] for x in myresult]
-
+    
+    def update_type_info(self, id, desc):
+        sql = "UPDATE recordtype SET recordName = %s WHERE typeSeq = %s"
+        self.cursor.execute(sql, (desc, id,))
+        self.db.commit()
+    
+    def get_all_type_info(self) -> list[str]:
+        sql = "SELECT typeSeq, recordName from recordtype"
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+        
     def get_available_addresses(self) -> List[str]:
-        sql = "SELECT * FROM addresses"
+        sql = "SELECT addrSeq, line1, line2, line3, line4, addrName FROM addresses"
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         return myresult
+    
+    def get_address_by_seq(self, addrSeq):
+        sql = "SELECT addrSeq, line1, line2, line3, line4, addrName FROM addresses WHERE addrSeq = %s"
+        self.cursor.execute(sql, (addrSeq,))
+        return self.cursor.fetchall()[0]
         
     def get_invoice_by_id(self, invoice_id: int):
         invoice_sql = """
@@ -433,6 +455,94 @@ e.addrSeq and a.statusID = f.statusID and a.invoiceID = %s;
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         return [x[0] for x in myresult]
+    
+    def get_status_info(self):
+        sql = "SELECT * FROM statuses"
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+
+    def update_user_info(self, user_seq, user_info):
+        sql = """
+        UPDATE allowedUsers SET
+        userID = %s,
+        user_full_name = %s,
+        emailAddr = %s,
+        theme = %s
+        WHERE userSeq = %s
+        """
+        vals = (
+            user_info["UserID"],
+            user_info["userName"],
+            user_info["emailID"],
+            user_info["theme"],
+            user_seq
+        )
+        self.cursor.execute(sql, vals)
+        self.db.commit()
+        
+    def update_status_info(self, status_seq, status_info):
+        sql = """
+        UPDATE statuses SET
+        statusDesc = %s
+        WHERE statusID = %s
+        """
+        vals = (
+            status_info,
+            status_seq
+        )
+        self.cursor.execute(sql, vals)
+        self.db.commit()
+    
+    def update_address(self, addr_seq, addr_data):
+        sql = """
+        UPDATE addresses
+        SET line1 = %s,
+        line2 = %s,
+        line3 = %s,
+        line4 = %s,
+        addrName = %s
+        WHERE addrSeq = %s
+        """
+        vals = (
+            addr_data['line1'],
+            addr_data['line2'],
+            addr_data['line3'],
+            addr_data['line4'],
+            addr_data['desc'],
+            addr_seq
+        )
+        
+        self.cursor.execute(sql, vals)
+        self.db.commit()
+        
+    def update_user_perms(self, user_seq, perms):
+        sql = """
+        UPDATE permissions SET
+        invEdit = %s,
+        invView = %s,
+        docEdit = %s,
+        docView = %s,
+        invAdmin = %s,
+        docAdmin = %s,
+        canApproveInvoices = %s,
+        canReceiveEmails = %s,
+        userAdmin = %s
+        WHERE userSeq = %s
+        """
+        vals = (
+            perms.get("EI") == "on",
+            perms.get("RI") == "on",
+            perms.get("ED") == "on",
+            perms.get("RD") == "on",
+            perms.get("AI") == "on",
+            perms.get("AD") == "on",
+            perms.get("AP") == "on",
+            perms.get("RE") == "on",
+            perms.get("UA") == "on",
+            user_seq
+        )
+        self.cursor.execute(sql, vals)
+        self.db.commit()
 
 def format_date(date: datetime.datetime) -> str:
     return date.strftime("%d %b, %Y")

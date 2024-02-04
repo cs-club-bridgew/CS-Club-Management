@@ -45,7 +45,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
     <script src="/utils.js" defer></script>
 </head>
-<body onload="populateDate()">
+<body onload="populateDate(); getStyle()">
     <div id="navbar"></div>
     <br>
     <br>
@@ -95,7 +95,7 @@
                     </td>
                 {% endif %}
                 <td>{{ row.title }}</td>
-                <td><a id="nav" href="/docket/view/{{ row.docket_id }}">View</a></td>
+                <td><a class="nav" href="/docket/view/{{ row.docket_id }}">View</a></td>
             </tr>
         {% endfor %}
     </table>
