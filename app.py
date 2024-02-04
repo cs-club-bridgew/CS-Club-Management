@@ -36,7 +36,6 @@ def get_navbar():
             userAdmin = db.is_user_admin(request.cookies.get('userID'))
         except:
             pass
-    print(request.cookies.get('userID'))
     return render_template("navbar.liquid", isUserAdmin=userAdmin)
 
 @app.route("/about/")
@@ -76,3 +75,7 @@ def get_user(ID=None):
     user_name = db.get_user_name(ID)
     db.close()
     return user_name
+
+@app.get("/utils.js")
+def getUtilsJS():
+    return send_file("static/utils.js")

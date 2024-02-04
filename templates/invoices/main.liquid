@@ -133,10 +133,13 @@
             window.location.href = "/invoices/?sort=" + lastSort + "&order=" + lastOrder + "&excludeType=" + type + "&excludeStatus=" + status;
         }
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
 </head>
 <body onload="onLoad()">
+<div id="navbar"></div>
     <!-- Add filters -->
-    {% render "navbar.liquid" %}
+    
     <br><br>
     <fieldset id="filters">
         <legend>Filters</legend>
@@ -194,7 +197,7 @@
                 <td>{{item.status}}</td>
                 <td>{{item.li | size}}</td>
                 <td>{{item.total}}</td>
-                <td><a id="nav" class="table" href="/invoices/view/{{item.id}}" target="_blank">Open</a><a id="nav" class="table" target="_blank" href="/invoices/edit/{{item.id}}">Edit</a></td>
+                <td><a class="nav" class="table" href="/invoices/view/{{item.id}}" target="_blank">Open</a><a class="nav" class="table" target="_blank" href="/invoices/edit/{{item.id}}">Edit</a></td>
             </tr>
         {% endfor %}
         </tbody>

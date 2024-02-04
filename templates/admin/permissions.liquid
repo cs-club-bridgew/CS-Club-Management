@@ -5,21 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Permissions</title>
     <link rel="stylesheet" href="/style.css">
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
 </head>
 <body>
-    {% render "navbar.liquid" %}
+    
+    <div id="navbar"></div>
 
     <br><br>
     <table>
         <tr>
             <th>User Name</th>
+            <th>Email</th>
             <th colspan="3">Invoices</th>
             <th colspan="3">Docket</th>
             <th>Admin</th>
             <th colspan="2">User Preferences</th>
         </tr>
         <tr>
+            <th></th>
             <th></th>
             <th>R</th>
             <th>W</th>
@@ -34,7 +38,7 @@
         {% for user in perms %}
             <tr>
                 <td>{{user[0]}}</td>
-                <td>{{user[1]}}</td>
+                <td style="text-transform: none;">{{user[1]}}</td>
                 <td>{{user[2]}}</td>
                 <td>{{user[3]}}</td>
                 <td>{{user[4]}}</td>
@@ -43,6 +47,7 @@
                 <td>{{user[7]}}</td>
                 <td>{{user[8]}}</td>
                 <td>{{user[9]}}</td>
+                <td>{{user[10]}}</td>
             </tr>
         {% endfor %}
     </table>

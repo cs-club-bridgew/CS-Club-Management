@@ -64,7 +64,7 @@ e.addrSeq and a.statusID = f.statusID;
         return user[1]
     
     def get_user_by_id(self, id: str) -> list:
-        sql = "SELECT userID, user_full_name, userSeq FROM allowedUsers where userID = %s"
+        sql = "SELECT userID, user_full_name, userSeq, emailAddr FROM allowedUsers where userID = %s"
         self.cursor.execute(sql, (id,))
         user_data = self.cursor.fetchone()
         #print(user_data)
@@ -108,7 +108,7 @@ e.addrSeq and a.statusID = f.statusID;
     
     def get_all_user_perms(self) -> List:
         sql = """
-        SELECT a.user_full_name, b.invEdit, b.invView, b.docEdit, b.docView,
+        SELECT a.user_full_name, a.emailAddr, b.invEdit, b.invView, b.docEdit, b.docView,
         b.invAdmin, b.docAdmin, b.canApproveInvoices, b.userAdmin,
         b.canReceiveEmails from allowedUsers a, permissions b where
         a.userSeq = b.userSeq and a.user_full_name != '' and a.user_full_name 
@@ -117,6 +117,14 @@ e.addrSeq and a.statusID = f.statusID;
         self.cursor.execute(sql)
         return self.cursor.fetchall()
     
+    def get_all_user_info(self, userSeq):
+        sql = """SELECT a.user_full_name, a.userID, a.emailAddr,
+        b.invEdit, b.invView, b.docEdit, b.docView, b.invAdmin,
+        b.docAdmin, b.canApproveInvoices, b.userAdmin,
+        b.canReceiveEmails from allowedUsers a, permissions b where
+        a.userSeq = b.userSeq and a.userSeq = %s;"""
+        self.cursor.execute(sql, (userSeq,))
+        return self.cursor.fetchone()
     
     def get_user_full(self, seq: str) -> list[str]:
         sql = "SELECT userID, user_full_name, userSeq FROM allowedUsers where userSeq = %s"

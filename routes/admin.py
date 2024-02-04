@@ -37,10 +37,18 @@ def createUserPost():
     db.is_user_app_admin(user_id)
     try:
         userSeq = db.create_user(request.form)
-        print(request.form)
         db.create_user_perms(userSeq, request.form)
         db.close()
     except Exception as e:
         print(e)
-        return "User creation failed"
-    return "User created"
+        return "<script>alert('Error creating user'); window.location.href = '/admin/users/create';</script>"
+    return "<script>alert('User Created'); window.location.href = '/admin/users';</script>"
+
+@app.route("/admin/users/edit/<int:user_seq>", methods=["GET"])
+def editUser(user_seq):
+    user_id = request.cookies.get('userID')
+    db = connect(**db_settings)
+    db.is_user_app_admin(user_id)
+    user = db.get_all_user_info(user_seq)
+    db.close()
+    return render_template("admin/edit.liquid", user=user, seq=user_seq)

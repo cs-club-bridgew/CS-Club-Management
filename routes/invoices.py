@@ -101,7 +101,7 @@ def create_inv_post():
     results = db.create_invoice(**data)
     if results[2]:
         # Send email
-        alert_invoice(results[0])
+        alert_invoice_new(results[0])
     
     # return the ID
     db.close()
@@ -148,7 +148,6 @@ def edit_inv_post(ID=None):
     
     # get the data from the json body
     data = request.get_json()
-    print(data)
     # add the data to the items list
     try:
         seq = db.update_record(**data)
@@ -157,7 +156,7 @@ def edit_inv_post(ID=None):
             return "Record not updated!", 404
         if seq == 1:
             # Send email
-            alert_invoice(ID)
+            alert_invoice_update(ID)
         return f"Record edited with ID: {data.get('id')}", 201
     except Exception as e:
         db.close()
