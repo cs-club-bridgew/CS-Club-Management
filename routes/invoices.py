@@ -96,6 +96,7 @@ def create_inv_post():
     
     # get the data from the json body
     data = request.get_json()
+    print(data)
     # add the data to the items list
     # try:
     results = db.create_invoice(**data)

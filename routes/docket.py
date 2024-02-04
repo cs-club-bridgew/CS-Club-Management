@@ -24,7 +24,7 @@ def save_docket(docket):
 @app.route("/docket/")
 def get_docket_root():
     db = connect(**db_settings)
-    db.can_user_view_docket(request.cookies.get('userID'))
+    db.can_user_view_docket(request.cookies.get('userID', ''))
     db.close()
     items = load_docket()
     return render_template("docket/main.liquid", docket_items=items)
