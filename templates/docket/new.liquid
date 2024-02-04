@@ -7,11 +7,14 @@
     <link rel="icon" type="image/x-icon" href="/docket/favicon.ico">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/invoices/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
     <script>
         
     </script>
 </head>
-<body>
+<body onload = "getStyle()">
+    <div id="navbar"></div>
     <h1>New Docket Entry</h1>
     <h2>ID: {{recordID}}</h2>
     <h2>Current User: {{user_name}}</h2>

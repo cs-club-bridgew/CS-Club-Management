@@ -11,19 +11,12 @@
     <link rel="icon" type="image/x-icon" href="/invoices/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Financial Record</title>
+    <script src="/invoices/invUtils.js"></script>
+
     <script>
 
-        class Address{
-            constructor(desc, addr1, addr2, addr3, addr4){
-                this.desc = desc
-                this.addr1 = addr1
-                this.addr2 = addr2
-                this.addr3 = addr3
-                this.addr4 = addr4
-            }
-        }
+        
 
-        let addresses = [];
 
         function UpdateApproverBox(){
             if(document.getElementById("IT3").checked && !document.getElementById("S5").checked){
@@ -68,6 +61,7 @@
             document.getElementById("createDate").value = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? 0 : ""}${date.getMonth()+1}-${date.getDate()+1 < 10 ? 0 : ""}${date.getDate()}`;
 
             document.getElementById("ID").value = '{{id}}'
+            document.getElementById("addrDropdown").value = 'New Address'
 
             // Populate the address dropdown box
             {% for item in valid_addr %}
@@ -114,7 +108,7 @@
                 "date": getDate(),
                 "creator": document.getElementById("creator").value,
                 "approver": document.getElementById("approver").value,
-                "type": document.getElementById("IT1").checked ? "invoice" : document.getElementById("IT2").checked ? "c_invoice" : "sga_budget",
+                "type": getCurrentType(),
                 "return_addr": [
                     document.getElementById("RA1").value,
                     document.getElementById("RA2").value,
@@ -127,7 +121,7 @@
                 "tax": formatPrice(document.getElementById("taxes").value),
                 "fees": formatPrice(document.getElementById("fees").value),
                 "total": formatPrice(document.getElementById("total").value),
-                "status": document.getElementById("S1").checked ? "open" : document.getElementById("S2").checked ? "paid" : document.getElementById("S3").checked ? "closed" : document.getElementById("S4").checked ? "granted" : "pending"
+                "status": getCurrentStatus()
             }
             post_data["addr_desc"] = document.getElementById("addrDropdown").value == "New Address" ? prompt("Enter an address description: ") : document.getElementById("addrDropdown").value
             let table = document.getElementById("products")
@@ -160,14 +154,14 @@
 
         function AddRow(){
             let table = document.getElementById("products")
+            let rowID = table.rows.length
+            console.log(rowID)
             let row = table.insertRow()
-            let rowID = table.rows.length - 1
             row.insertCell().innerText = rowID
             row.insertCell().innerHTML = `<input type="text" id="prod${rowID}">`
             row.insertCell().innerHTML = `<input type="text" id="price${rowID}" onChange="updateTotal()">`
             row.insertCell().innerHTML = `<input type="text" id="qty${rowID}" onChange="updateTotal()">`
             row.insertCell().innerHTML = `<button onClick="removeRow(${rowID})">x</button>`
-
         }
 
         function preview(){
@@ -290,49 +284,75 @@
             
             })
         }
+
+        function getCreatorUser(){
+            current_user_id = "{{current_user}}"
+            userID = prompt("Enter Creator User ID", current_user_id)
+            // New XHR Request to /get_user_name/<userID>
+            let xhr = new XMLHttpRequest()
+            xhr.open("GET", `/get_user_name/${userID}`)
+            xhr.send()
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4){
+                    if(xhr.status == 200){
+                        document.getElementById("creator").value = xhr.responseText
+                        creatorID = userID
+                        if(creatorID == approverID){
+                            alert("Approver cannot be the same as the creator")
+                            document.getElementById("approver").value = ""
+                            approverID = ""
+                        }
+                    } else{
+                        alert("Error Getting User")
+                    }
+                }
+            }
+        }
+        
+        
+
     </script>
 </head>
 <body onload="UpdateBoxes()">
     <h1>New Record</h1>
     <fieldset id="RAddr">
         <legend>Remit Address</legend>
-        <input id="addrDropdown" list="addresses" onchange="updateAddressFromDropdown()">
-        <datalist id="addresses">
-            
-            {% for item in valid_addr %}
-                <option value="{{item[5]}}"></option>
+        <select name="addrDropdown" id="addrDropdown" onchange="updateAddressFromDropdown()">
+    {% for item in valid_addr %}
+                <option value="{{item[5]}}">{{item[5]}}</option>
             {% endfor %}
-            <option value="New Address"></option>
-        </datalist>
-        <input type="text" id="RA1" disabled> <br>
-        <input type="text" id="RA2" disabled> <br>
-        <input type="text" id="RA3" disabled> <br>
-        <input type="text" id="RA4" disabled>
+
+            <option value="New Address">New Address</option>
+        </select>
+        <br>
+        <input type="text" id="RA1"> <br>
+        <input type="text" id="RA2"> <br>
+        <input type="text" id="RA3"> <br>
+        <input type="text" id="RA4">
     </fieldset>
     <fieldset id="Type">
         <legend>Record Type</legend>
-        <input type="radio" id="IT1" onclick="UpdateApproverBox()" name="IT"> Invoice <br>
-        <input type="radio" id="IT2" onclick="UpdateApproverBox()" name="IT"> Credit Invoice <br>
-        <input type="radio" id="IT3" onclick="UpdateApproverBox()" name="IT"> SGA Budget Request
-    </fieldset>
+        {% for valid_type in valid_types %}
+            <input type="radio" name="types" id="{{valid_type}}" onchange="updateIfSGA()"> <label for="{{valid_type}}">{{valid_type}}</label><br/>
+        {% endfor %}
+    </fieldset>   
     <fieldset>
         <legend>Record Settings</legend>
         <label for="ID">Record ID</label>
-        <input type="text" name="ID" id="ID"> <br>
+        <input type="text" name="ID" id="ID" disabled> <br>
         <label for="creator">Created By:</label>
-        <input type="text" id="creator"><br>
+        <input type="text" id="creator" disabled> <button onclick="getCreatorUser()">Get User</button><br>
         <label for="approver">Approved By:</label>
-        <input type="text" id="approver"><br>
+        <input type="text" id="approver" disabled><button id="approverBtn" onclick="getApproverUser()">Get User</button><br>
         <label for="createDate">Creation Date</label>
         <input type="date" name="createDate" id="createDate">
     </fieldset>
     <fieldset>
         <legend>Status</legend>
-        <input type="radio" name="statusSelect" id="S1" onclick="UpdateApproverBox()">Open<br/>
-        <input type="radio" name="statusSelect" id="S2" onclick="UpdateApproverBox()">Paid<br/>
-        <input type="radio" name="statusSelect" id="S3" onclick="UpdateApproverBox()">Closed<br/>
-        <input type="radio" name="statusSelect" id="S4" onclick="UpdateApproverBox()">Granted<br/>
-        <input type="radio" name="statusSelect" id="S5" onclick="UpdateApproverBox()">Pending<br/>
+        {% for valid_status in valid_statuses %}
+            <input type="radio" name="statusSelect" id="{{valid_status}}" onchange="updateIfSGA()"> <label for="{{valid_status}}">{{valid_status}}</label><br/>
+        {% endfor %}
+        
     </fieldset>
     <fieldset>
         <legend>Items</legend>
@@ -344,6 +364,16 @@
                 <th>Quantity</th>
                 <th>Remove</th>
             </tr>
+                {% for product in li %}
+            <tr>
+                    <td>{{product.line}}</td>
+                    {%  assign lineTotal = product.ammt |  times: product.qty %}
+                    <td><input type='text' onchange='updateTotal()' id='prod{{product.line}}' value="{{product.desc}}"></td>
+                    <td><input type='number' onchange='updateTotal()' id="price{{product.line}}" value="{{product.ammt}}"></td>
+                    <td><input type='number' onchange='updateTotal()' id="qty{{product.line}}" value="{{product.qty}}"></td>
+                    <td><button onclick="RemoveRow({{product.line}})" title="Cannot remove existing items" disabled>x</button></td>
+            </tr>
+                {% endfor %}
         </table>
         <button onclick="AddRow()">Add Line</button> <br>
         <label for="taxes">Taxes:</label>

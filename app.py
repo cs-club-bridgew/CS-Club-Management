@@ -1,8 +1,8 @@
-from flask import Flask, send_file, make_response
+from flask import Flask, send_file, make_response, request
 from flask_liquid import Liquid, render_template
 from db_config import db_settings
-from db_conn import connect
-
+from utils.db_conn import connect
+import utils.app_utils as app_utils
 
 app = Flask(__name__)
 liquid = Liquid(app)
@@ -10,8 +10,10 @@ app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
 )
 
-import invoices
-import docket
+import routes.invoices
+import routes.docket
+import routes.error_handler
+import routes.admin
 
 @app.route("/style.css")
 def get_main_css():
@@ -21,9 +23,20 @@ def get_main_css():
 def get_invoice_css():
     return send_file("static/invoice-main.css")
 
+@app.route("/invoices/invUtils.js")
+def get_invoice_utils():
+    return send_file("static/invoices/invUtils.js")
+
 @app.route("/navbar/")
 def get_navbar():
-    return render_template("navbar.liquid")
+    userAdmin = False
+    db = connect(**db_settings)
+    if request.cookies.get('userID'):
+        try:
+            userAdmin = db.is_user_admin(request.cookies.get('userID'))
+        except:
+            pass
+    return render_template("navbar.liquid", isUserAdmin=userAdmin)
 
 @app.route("/about/")
 def get_about():
@@ -31,7 +44,7 @@ def get_about():
 
 @app.route("/")
 def get_main_root():
-    return render_template("navbar.liquid")
+    return get_navbar()
 
 @app.route("/blockFont.ttf")
 def get_block_font():
@@ -39,13 +52,14 @@ def get_block_font():
 
 @app.route("/set_user/<ID>")
 def set_user(ID=None):
+    if ID == '~':
+        raise app_utils.UserAccessNotSignedInException
     db = connect(**db_settings)
-    if ID is None:
-        return "User ID not supplied", 400
-    if ID not in db.get_available_users():
-        return "User ID not allowed", 403
+    db.is_user_valid(ID)
+    theme = db.get_user_color_theme(ID)
     resp = make_response(render_template("invoices/UserID.liquid", id=ID))
     resp.set_cookie('userID', ID)
+    resp.set_cookie('themeID', str(theme[0]))
     db.close()
     return resp, 200
 
@@ -55,3 +69,24 @@ def get_set_user():
 
 <script> window.location.href=`/set_user/${prompt("Enter your User ID")}`</script>
 """
+
+
+@app.route("/get_user_name/<ID>")
+def get_user(ID=None):
+    db = connect(**db_settings)
+    user_name = db.get_user_name(ID)
+    db.close()
+    return user_name
+
+@app.get("/utils.js")
+def getUtilsJS():
+    return send_file("static/utils.js")
+
+
+@app.get("/1.css")
+def get_theme_1():
+    return send_file("static/themes/1.css")
+
+@app.get("/2.css")
+def get_theme_2():
+    return send_file("static/themes/2.css")

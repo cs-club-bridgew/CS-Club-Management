@@ -7,26 +7,22 @@
     <link rel="icon" type="image/x-icon" href="/docket/favicon.ico">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/invoices/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
 
 </head>
-<body>
+<body onload = "getStyle()">
+<div id="navbar"></div>
     <h1>Edit Docket ID {{record.docket_id}}</h1>
-    {% if current_user[2] != 1 and current_user[1] != record.created_by) %}
-        <h2>You do not have permission to edit this docket</h2>
-    {% else %}
         
 
     <form action="/docket/edit/{{record.docket_id}}" method="post">
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" value="{{record.title}}"> <br> <br>
+        <label for="description">Description</label> <br>
+        <textarea name="description" id="description" cols="32" rows="10">{{record.description}}</textarea> <br> <br>
 
-        {% if current_user[2] == 1 or current_user[1] == record.created_by%}
-        
-    
-            <label for="title">Title</label>
-            <input type="text" name="title" id="title" value="{{record.title}}"> <br> <br>
-            <label for="description">Description</label> <br>
-            <textarea name="description" id="description" cols="32" rows="10">{{record.description}}</textarea> <br> <br>
-        {% endif %}    
-        {% if current_user[2] == 1  %}
+        {% if isAdmin %}
             
         <label for="status">Status</label>
     
@@ -45,7 +41,6 @@
         {% endif %}
 
         </form>
-    {% endif %}
 
     <a id="nav" href="/docket/">Back to Docket</a>
 </body>

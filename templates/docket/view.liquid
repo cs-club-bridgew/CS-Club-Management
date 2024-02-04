@@ -15,8 +15,11 @@
             document.getElementById("createDate").innerHTML = date.toLocaleString();
         }
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
 </head>
-<body onload="populateDate()">
+<body onload="populateDate(); getStyle()">
+<div id="navbar"></div>
     <button onclick="window.location.href='/docket/'">Back</button>
     <button onclick="window.location.href='/docket/edit/{{record.docket_id}}'">Edit</button>
     <br>
