@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head onclick="getStyle()">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Addr {{addr[0]}}</title>
@@ -9,7 +9,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" defer></script>
     <script src="/utils.js" defer></script>
 </head>
-<body>
+<body onload="getStyle()">
     <div id="navbar"></div>
     <form action="/admin/addresses/edit/{{address[0]}}" method="post">
     <label for="addrName">Description</label> <input type="text" name="addrName" id="addrName" value="{{address[5]}}"> <br>

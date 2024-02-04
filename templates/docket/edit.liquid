@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head onclick="getStyle()">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Docket ID #{{record.docket_id}}</title>
@@ -11,7 +11,7 @@
     <script src="/utils.js" defer></script>
 
 </head>
-<body >
+<body onload="getStyle()">
 <div id="navbar"></div>
     <h1>Edit Docket ID {{record.docket_id}}</h1>
         

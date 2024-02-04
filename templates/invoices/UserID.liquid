@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head onclick="getStyle()">
+<head>
     <!-- NO CACHE! -->
     <meta http-equiv="cache-control" content="max-age=0">
     <meta http-equiv="cache-control" content="no-cache">
@@ -14,7 +14,7 @@
     <!-- Meta Redirect to root after one sec -->
     <meta http-equiv="refresh" content="1;url=/">
 </head>
-<body>
+<body onload="getStyle()">
     <p>User ID Set to {{id}}</p>
 </body>
 </html>
