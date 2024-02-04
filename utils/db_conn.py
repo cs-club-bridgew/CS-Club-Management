@@ -108,8 +108,8 @@ e.addrSeq and a.statusID = f.statusID;
     
     def get_all_user_perms(self) -> List:
         sql = """
-        SELECT a.user_full_name, a.emailAddr, b.invEdit, b.invView, b.docEdit, b.docView,
-        b.invAdmin, b.docAdmin, b.canApproveInvoices, b.userAdmin,
+        SELECT a.user_full_name, a.emailAddr, b.invView, b.invEdit, b.invAdmin, b.docView, b.docEdit,
+        b.docAdmin, b.userAdmin, b.canApproveInvoices, 
         b.canReceiveEmails from allowedUsers a, permissions b where
         a.userSeq = b.userSeq and a.user_full_name != '' and a.user_full_name 
         not like 'SGA%';
@@ -138,7 +138,10 @@ e.addrSeq and a.statusID = f.statusID;
         return str(self.cursor.fetchone()[0])
     
     def get_user_permissions(self, userID: str) -> list[bool]:
-        userSeq = self.get_user_by_id(userID)[2]
+        user_info = self.get_user_by_id(userID)
+        if user_info is None:
+            raise app_utils.UserAccessNotSignedInException
+        userSeq = user_info[2]
         perm_sql = "SELECT invEdit, invView, docEdit, docView, invAdmin, docAdmin, canApproveInvoices, userAdmin from permissions where userSeq = %s"
         self.cursor.execute(perm_sql, (userSeq,))
         return self.cursor.fetchone()
@@ -233,6 +236,7 @@ e.addrSeq and a.statusID = f.statusID;
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         used_ids = [x[0] for x in myresult]
+        if len(used_ids) == 0: return 1
         max_result = max(used_ids)
         i = 1
         while i <= max_result:
@@ -451,7 +455,7 @@ e.addrSeq and a.statusID = f.statusID and a.invoiceID = %s;
         return invoice_data
 
     def get_approver_emails(self) -> list[str]:
-        sql = "select a.emailAddr from allowedusers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1;"
+        sql = "SELECT a.emailAddr FROM allowedusers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1;"
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         return [x[0] for x in myresult]

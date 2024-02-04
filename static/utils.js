@@ -12,7 +12,8 @@ function getStyle(){
     tag.rel = "stylesheet"
 
     themeID = getCookie("themeID")
-
+    if(themeID == undefined)
+        themeID = '1'
     tag.href = `/${themeID}.css`
     var head = document.getElementsByTagName("head")[0]
 

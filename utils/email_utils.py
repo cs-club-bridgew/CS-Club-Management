@@ -173,12 +173,12 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
               email_settings['password'], attachments=[f'Invoice{invoice_id}.pdf'], use_ssl=True)
     
 def alert_invoice_new(invoice_id):
-    convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
+    convert_url_to_pdf(f'https://officers.compscibridgew.info/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
     alert_users_of_new_invoice(invoice_id)
     create_docket_item(invoice_id)
     
     
 def alert_invoice_update(invoice_id):
-    convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
+    convert_url_to_pdf(f'https://officers.compscibridgew.info/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
     alert_users_of_updated_invoice(invoice_id)
     create_docket_item(invoice_id)
