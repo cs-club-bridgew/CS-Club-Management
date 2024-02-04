@@ -8,7 +8,7 @@ from pathlib import Path
 from routes.docket import load_docket, save_docket
 import time
 from utils.db_conn import connect
-from db_config import db_settings
+from db_config import db_settings, email_settings
 import pdfkit 
 
 
@@ -128,8 +128,8 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
     
     send_email(subject, message_body, 
               "cclub9516@gmail.com", email_recip,
-              [], [], 'smtp.gmail.com:465', 'cclub9516@gmail.com',
-              'xubi qrlo smkq vtax', attachments=[f'Invoice{invoice_id}.pdf'], use_ssl=True)
+              [], [], email_settings["smtp_host"], email_settings['username'],
+              email_settings['password'], attachments=[f'Invoice{invoice_id}.pdf'], use_ssl=True)
     
 def alert_invoice_new(invoice_id):
     convert_url_to_pdf(f'http://localhost:5000/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')
