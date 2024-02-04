@@ -6,7 +6,7 @@ function getCookie(name) {
 
 
 
-function getStyle(){
+function {
     $("#navbar").load("/navbar/"); 
     tag = document.createElement("link")
     tag.rel = "stylesheet"

@@ -1,7 +1,7 @@
 {% assign required_percent = 2.0 |  divided_by: 3.0 %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head onclick="getStyle()">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Docket Manager</title>
@@ -45,7 +45,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
     <script src="/utils.js" defer></script>
 </head>
-<body onload="populateDate(); getStyle()">
+<body onload="populateDate(); ">
     <div id="navbar"></div>
     <br>
     <br>
