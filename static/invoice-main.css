@@ -16,18 +16,7 @@
     margin-bottom: 5px;
 }
 
-td, th{
-    padding: 3px;
-}
 
-thead>tr{
-    font-weight: unset;
-    text-decoration: underline;
-}
-
-tbody>tr{
-    height: 40px;
-}
 
 a#nav.table{
     display: inline;
