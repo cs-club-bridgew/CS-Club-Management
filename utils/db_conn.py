@@ -455,7 +455,7 @@ e.addrSeq and a.statusID = f.statusID and a.invoiceID = %s;
         return invoice_data
 
     def get_approver_emails(self) -> list[str]:
-        sql = "SELECT a.emailAddr FROM allowedusers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1;"
+        sql = "SELECT a.emailAddr FROM allowedusers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1 AND a.isSystemUser = 0"
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         return [x[0] for x in myresult]
