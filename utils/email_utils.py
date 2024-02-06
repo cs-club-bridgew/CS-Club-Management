@@ -85,6 +85,7 @@ def create_docket_item(invoice_id):
     result['docket_id'] = len(items) + 1
     result['status'] = "In Progess"
     result['create_date'] = time.mktime(invoice['date'].timetuple())
+    result['href'] = f"/invoices/view/{invoice_id}"
     items.append(result)
     save_docket(items)
     return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
