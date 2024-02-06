@@ -15,6 +15,8 @@ def load_docket():
         with open("docket.json", "w") as f:
             json.dump([], f)
         return []
+    
+
 
 
 def save_docket(docket):

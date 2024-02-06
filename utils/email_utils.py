@@ -37,7 +37,7 @@ def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_
         s = smtplib.SMTP(smtp_host)
     if use_tls:
         s.starttls()
-    s.login(username, password)
+    # s.login(username, password)
     to_list = to_addrs + cc_addrs + bcc_addrs
     s.sendmail(from_addr, to_list, msg.as_string())
     s.quit()
@@ -126,9 +126,9 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
     
     
     send_email(subject, message_body, 
-              "cclub9516@gmail.com", email_recip,
-              [], [], email_settings["smtp_host"], email_settings['username'],
-              email_settings['password'], use_ssl=True)
+              "csclub@bridgew.edu", email_recip,
+              ["csclub@bridgew.edu"], [], email_settings["smtp_host"], email_settings['username'],
+              email_settings['password'], use_ssl=False)
     
 def alert_users_of_updated_invoice(invoice_id):
     db = connect(**db_settings)
@@ -165,9 +165,9 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
     
     
     send_email(subject, message_body, 
-              "cclub9516@gmail.com", email_recip,
-              [], [], email_settings["smtp_host"], email_settings['username'],
-              email_settings['password'], use_ssl=True)
+              "csclub@bridgew.edu", email_recip,
+              ["csclub@bridgew.edu"], [], email_settings["smtp_host"], email_settings['username'],
+              email_settings['password'] , use_ssl=False)
     
 def alert_invoice_new(invoice_id):
     # convert_url_to_pdf(f'https://officers.compscibridgew.info/invoices/view/{invoice_id}', f'Invoice{invoice_id}.pdf')

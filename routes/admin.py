@@ -13,6 +13,10 @@ def manageUsers():
     db.close()
     return render_template("admin/users/main.liquid", users=users)
 
+@app.route("/admin/favicon.ico")
+def load_favicon():
+    return send_file("static/admin/favicon.ico")
+
 @app.route("/admin/perms/")
 def managePermissions():
     user_id = request.cookies.get('userID')

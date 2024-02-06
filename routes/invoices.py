@@ -3,7 +3,7 @@ from utils.db_conn import connect
 from db_config import db_settings
 from flask import request, send_file
 from flask_liquid import render_template
-from utils.email_utils import alert_invoice_new, alert_invoice_update
+# from utils.email_utils import alert_invoice_new, alert_invoice_update
 
 
 
