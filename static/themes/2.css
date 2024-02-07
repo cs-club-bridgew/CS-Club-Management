@@ -1,6 +1,6 @@
 html{
-    background-color: blue;
     color: yellow;
+    background-color: blue;
 }
 
 .navbar{
@@ -26,8 +26,8 @@ a::first-letter{
 }
 
 .navbar a:hover, .dropdown:hover .dropbtn {
-    color: yellow;
-    background-color: blue;
+    background-color: yellow;
+    color: blue;
 }
 
 .dropdown-content { 
@@ -45,8 +45,8 @@ a::first-letter{
 }
 
 .nav:hover {
-    background-color: yellow;
     color: blue;
+    background-color: yellow;
 }
 
 /* Add a grey background color to dropdown links on hover */
@@ -61,6 +61,6 @@ a.navsub{
 }
 
 .nav:hover>*{
-    background-color: blue;
     color: yellow;
+    background-color: blue;
 }
