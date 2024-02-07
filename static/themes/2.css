@@ -26,8 +26,8 @@ a::first-letter{
 }
 
 .navbar a:hover, .dropdown:hover .dropbtn {
-    background-color: yellow;
-    color: blue;
+    color: yellow;
+    background-color: blue;
 }
 
 .dropdown-content { 
@@ -58,6 +58,11 @@ a::first-letter{
 a.navsub{
     color: yellow;
     background-color: blue;
+}
+
+a.navsub:hover{
+    background-color: yellow;
+    color: blue;
 }
 
 .nav:hover>*{
