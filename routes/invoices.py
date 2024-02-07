@@ -63,9 +63,6 @@ def view_item(ID=None):
 
 @app.route('/invoices/logo.jpg')
 def get_image():
-    db = connect(**db_settings)
-    db.is_user_valid(request.cookies.get('userID'))
-    db.close()
     return send_file("static/invoices/logo.jpg", mimetype='image/gif')
 
 
