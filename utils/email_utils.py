@@ -10,6 +10,7 @@ import time
 from utils.db_conn import connect
 from db_config import db_settings, email_settings
 import pdfkit 
+from bs4 import BeautifulSoup
 
 
 def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_host, username, password, attachments=[], use_tls=False, use_ssl=True):
@@ -30,6 +31,10 @@ def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_
         msg.attach(part)
     # Set the message text content
     msg.attach(MIMEText(message, 'plain'))
+    msg.attach(MIMEText(f"""<font face="Courier New, Courier, monospace">
+                        {message}
+                        </font>
+                        """, 'html'))
     
     if use_ssl:
         s = smtplib.SMTP_SSL(smtp_host)
@@ -70,6 +75,7 @@ def format_lines(lines: list) -> str:
         for i, col in enumerate(line.values()):
             ret_str += f"{col:^{col_widths[i]}}"
         ret_str += "\n"
+        
     return ret_str
 
 def create_docket_item(invoice_id):
@@ -99,6 +105,7 @@ def alert_users_of_new_invoice(invoice_id):
     lines = format_lines(invoice['li'])
     
     message_body = f"""
+
 Hello,
 A new invoice has been created by {invoice['creator']} and is awaiting approval from an authorized user.
 
@@ -159,6 +166,7 @@ Total: ${invoice['total']}
 A officer docket item has been generated to review this invoice.
 
 This is an automated email sent from an unmonitored inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+</html>
     """
     email_recip = db.get_approver_emails()
     db.close()

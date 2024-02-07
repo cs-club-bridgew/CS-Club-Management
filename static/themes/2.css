@@ -1,33 +1,24 @@
 html{
-    color: yellow;
     background-color: blue;
+    color: yellow;
 }
 
 .navbar{
-    background-color: gray;
+    background-color: blue;
 }
 
 .navbar a{
-color:  black;
-}
+color:  yellow;
 
-a::first-letter{
-    color: red;
-    text-decoration: underline;
-}
-
-.dropbtn:first-letter{
-    color: red;
-    text-decoration: underline;
 }
 
 .dropdown .dropbtn{
-    color: black;
+    color: yellow;
 }
 
 .navbar a:hover, .dropdown:hover .dropbtn {
-    color: yellow;
-    background-color: blue;
+    background-color: yellow;
+    color: blue;
 }
 
 .dropdown-content { 
@@ -45,14 +36,14 @@ a::first-letter{
 }
 
 .nav:hover {
-    color: blue;
     background-color: yellow;
+    color: blue;
 }
 
 /* Add a grey background color to dropdown links on hover */
 .dropdown-content a:hover {
-    color: yellow;
     background-color: blue;
+    color: yellow;
 }
 
 a.navsub{
@@ -60,12 +51,17 @@ a.navsub{
     background-color: blue;
 }
 
-a.navsub:hover{
+.nav:hover>*{
     background-color: yellow;
     color: blue;
 }
 
-.nav:hover>*{
-    color: yellow;
-    background-color: blue;
+a::first-letter{
+    color: red;
+    text-decoration: underline;
+}
+
+.dropbtn:first-letter{
+    color: red;
+    text-decoration: underline;
 }
