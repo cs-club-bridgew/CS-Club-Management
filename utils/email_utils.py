@@ -1,7 +1,7 @@
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
+from email.message import EmailMessage
+from email.utils import make_msgid
+import mimetypes
 from typing import List
 from email import encoders
 from pathlib import Path
@@ -13,28 +13,36 @@ import pdfkit
 from bs4 import BeautifulSoup
 
 
-def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_host, username, password, attachments=[], use_tls=False, use_ssl=True):
+def send_email(subject, message, from_addr, to_addrs, cc_addrs, bcc_addrs, smtp_host, username, password, attachments=[], reply_addr = "", use_tls=False, use_ssl=True):
     
-    msg = MIMEMultipart()
+    msg = EmailMessage()
     msg['Subject'] = subject
     msg['From'] = from_addr
     msg['To'] = ", ".join(to_addrs)
-    msg['Cc'] = ", ".join(cc_addrs)
+    msg['Cc'] = ", ".join(cc_addrs) + f", {from_addr}" # Always CC the sender for record keeping.
     msg['Bcc'] = ", ".join(bcc_addrs)
-    for path in attachments:
-        part = MIMEBase('application', "octet-stream")
-        with open(path, 'rb') as file:
-            part.set_payload(file.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition',
-                        f'attachment; filename="{Path(path).name}"')
-        msg.attach(part)
+    
+    if reply_addr != "":
+        msg.add_header('reply-to', reply_addr)
+    
     # Set the message text content
-    msg.attach(MIMEText(message, 'plain'))
-    msg.attach(MIMEText(f"""<font face="Courier New, Courier, monospace">
-                        {message}
-                        </font>
-                        """, 'html'))
+    msg.set_content(BeautifulSoup(message, "html.parser").text, 'plain')
+    
+    image_cid = make_msgid(domain='xyz.com')
+    
+    msg.add_alternative(message.format(image_cid=image_cid[1:-1]), 'html')
+    
+    with open('static/invoices/logo.jpg', 'rb') as img:
+
+        # know the Content-Type of the image
+        maintype, subtype = mimetypes.guess_type(img.name)[0].split('/')
+
+        # attach it
+        msg.get_payload()[1].add_related(img.read(), 
+                                            maintype=maintype, 
+                                            subtype=subtype, 
+                                            cid=image_cid)
+    
     
     if use_ssl:
         s = smtplib.SMTP_SSL(smtp_host)
@@ -64,19 +72,19 @@ def format_lines(lines: list) -> str:
         for i, col in enumerate(line.values()):
             col_widths[i] = max(col_widths[i], len(str(col)))
     col_widths = [width + 4 for width in col_widths]
-    ret_str = ""
+    ret_str = "<pre>"
     
     
     for i, item in enumerate(headers):
         ret_str += f"{item:^{col_widths[i]}}"
-    ret_str += "\n"
+    ret_str += "<br/>"
     
     for line in lines:
         for i, col in enumerate(line.values()):
             ret_str += f"{col:^{col_widths[i]}}"
-        ret_str += "\n"
+        ret_str += "<br/>"
         
-    return ret_str
+    return ret_str + "</pre>"
 
 def create_docket_item(invoice_id):
     db = connect(**db_settings)
@@ -105,28 +113,35 @@ def alert_users_of_new_invoice(invoice_id):
     lines = format_lines(invoice['li'])
     
     message_body = f"""
+<html>
+    <head></head>
+    <body>
+        <font face="Courier New, Courier, monospace">
+        <img src="cid:{{image_cid}}" alt="BSU Logo" style="width: 150px;"/><br/>
+        Hello,<br/>
+        A new invoice has been created by {invoice['creator']} and is awaiting approval from an authorized user.<br/><br/>
 
-Hello,
-A new invoice has been created by {invoice['creator']} and is awaiting approval from an authorized user.
+        Invoice Details:<br/>
+        Record ID: {invoice_id}<br/>
+        Total Lines: {len(invoice['li'])}<br/>
+        Created By: {invoice['creator']}<br/>
+        Created On: {invoice['date']}<br/>
+        Invoice Address:<br/>
+        {address}<br/><br/>
 
-Invoice Details:
-Record ID: {invoice_id}
-Total Lines: {len(invoice['li'])}
-Created By: {invoice['creator']}
-Created On: {invoice['date']}
-Invoice Address:
-{address}
+        Line Details:<br/>
+        {lines}<br/><br/>
 
-Line Details:
-{lines}
+        Taxes: ${invoice['tax']}<br/>
+        Fees: ${invoice['fees']}<br/>
+        Total: ${invoice['total']}<br/><br/>
 
-Taxes: ${invoice['tax']}
-Fees: ${invoice['fees']}
-Total: ${invoice['total']}
+        A officer docket item has been generated to review this invoice.<br/><br/>
 
-A officer docket item has been generated to review this invoice.
-
-This is an automated email sent from an unmonitored inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+        This is an automated email sent from a shared inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+    </font>
+    </body>
+</html>
     """
     email_recip = db.get_approver_emails()
     db.close()
@@ -134,7 +149,7 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
     
     send_email(subject, message_body, 
               "csclub@bridgew.edu", email_recip,
-              ["csclub@bridgew.edu"], [], email_settings["smtp_host"], email_settings['username'],
+              [], [], email_settings["smtp_host"], email_settings['username'],
               email_settings['password'], use_ssl=False)
     
 def alert_users_of_updated_invoice(invoice_id):
@@ -145,27 +160,35 @@ def alert_users_of_updated_invoice(invoice_id):
     lines = format_lines(invoice['li'])
     
     message_body = f"""
-Hello,
-An invoice has been updated! The original invoice was created by {invoice['creator']} and is awaiting approval from an authorized user.
+<html>
+    <head></head>
+    <body>
+        <font face="Courier New, Courier, monospace">
+        <img src="cid:{{image_cid}}" alt="BSU Logo" style="width: 150px;"/><br/>
 
-Invoice Details:
-Record ID: {invoice_id}
-Total Lines: {len(invoice['li'])}
-Created By: {invoice['creator']}
-Created On: {invoice['date']}
-Invoice Address:
-{address}
+        Hello,<br/>
+        An invoice has been updated. The invoice was created by {invoice['creator']} and is awaiting approval from an authorized user.<br/><br/>
 
-Line Details:
-{lines}
+        Invoice Details:<br/>
+        Record ID: {invoice_id}<br/>
+        Total Lines: {len(invoice['li'])}<br/>
+        Created By: {invoice['creator']}<br/>
+        Created On: {invoice['date']}<br/>
+        Invoice Address:<br/>
+        {address}<br/><br/>
 
-Taxes: ${invoice['tax']}
-Fees: ${invoice['fees']}
-Total: ${invoice['total']}
+        Line Details:<br/>
+        {lines}<br/><br/>
 
-A officer docket item has been generated to review this invoice.
+        Taxes: ${invoice['tax']}<br/>
+        Fees: ${invoice['fees']}<br/>
+        Total: ${invoice['total']}<br/><br/>
 
-This is an automated email sent from an unmonitored inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+        A officer docket item has been generated to review this invoice.<br/><br/>
+
+        This is an automated email sent from a shared inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+    </font>
+    </body>
 </html>
     """
     email_recip = db.get_approver_emails()
@@ -174,7 +197,7 @@ This is an automated email sent from an unmonitored inbox. If you have any quest
     
     send_email(subject, message_body, 
               "csclub@bridgew.edu", email_recip,
-              ["csclub@bridgew.edu"], [], email_settings["smtp_host"], email_settings['username'],
+              [], [], email_settings["smtp_host"], email_settings['username'],
               email_settings['password'] , use_ssl=False)
     
 def alert_invoice_new(invoice_id):

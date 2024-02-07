@@ -339,7 +339,7 @@
     <fieldset>
         <legend>Record Settings</legend>
         <label for="ID">Record ID</label>
-        <input type="text" name="ID" id="ID" disabled> <br>
+        <input type="text" name="ID" id="ID" disabled> <button onclick="document.getElementById('ID').value=prompt('Enter an ID');">Change ID</button> <br>
         <label for="creator">Created By:</label>
         <input type="text" id="creator" disabled> <button onclick="getCreatorUser()">Get User</button><br>
         <label for="approver">Approved By:</label>
