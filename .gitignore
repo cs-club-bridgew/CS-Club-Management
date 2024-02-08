@@ -1,4 +1,6 @@
 .venv
+.vscode
+flask_session
 __pycache__
 records.*
 Invoices.sock
@@ -10,3 +12,5 @@ docket.json
 
 emails/*.json
 test.py
+*.pdf
+

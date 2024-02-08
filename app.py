@@ -1,5 +1,6 @@
 from flask import Flask, send_file, make_response, request
 from flask_liquid import Liquid, render_template
+from flask_session import Session
 from db_config import db_settings
 from utils.db_conn import connect
 
@@ -8,12 +9,17 @@ app = Flask(__name__)
 liquid = Liquid(app)
 app.config.update(
     LIQUID_TEMPLATE_FOLDER="./templates/",
+    SESSION_PERMANENT=False,
+    SESSION_TYPE = "filesystem"
 )
+
+Session(app)
 
 import routes.invoices
 import routes.docket
 import routes.error_handler
 import routes.admin
+import routes.auth
 import utils.email_utils
 
 @app.route("/style.css")
