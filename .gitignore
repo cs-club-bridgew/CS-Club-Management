@@ -1,4 +1,6 @@
 .venv
+.vscode
+flask_session
 __pycache__
 records.*
 Invoices.sock
@@ -11,3 +13,5 @@ sendgrid.env
 
 emails/*.json
 test.py
+*.pdf
+

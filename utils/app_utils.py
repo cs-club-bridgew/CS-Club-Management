@@ -37,3 +37,8 @@ class UserAccessNotSignedInException(Exception):
     def __init__(self):
         super().__init__("You are not signed in. " +
                          "Please sign in, and try again.")
+
+class UserAccessInvalidTokenException(Exception):
+    def __init__(self):
+        super().__init__("Could not validate token. " +
+                         "Unable to reset password.")
