@@ -1,7 +1,8 @@
 import mysql.connector
-from typing import List, Dict, NoReturn
+from typing import List, Dict, NoReturn, Tuple
 import datetime
 import utils.app_utils as app_utils
+import bcrypt
 
 class connect:
     def __init__(self, host, user, passwd, db):
@@ -17,7 +18,7 @@ class connect:
         return_list = []
         invoice_sql = """
         select a.invoiceID, a.createdDate, b.user_full_name, c.user_full_name, d.recordName, e.line1, e.line2, e.line3, e.line4, a.tax, a.fees, a.total, f.statusDesc
-from invoice a, allowedusers b, allowedusers c, recordtype d, addresses e, statuses f
+from invoice a, allowedUsers b, allowedUsers c, recordtype d, addresses e, statuses f
 where a.creator = b.userSeq and a.approved_by = c.userSeq and a.recordType = d.typeSeq and a.return_addr =
 e.addrSeq and a.statusID = f.statusID;
         """
@@ -126,6 +127,11 @@ e.addrSeq and a.statusID = f.statusID;
         self.cursor.execute(sql, (userSeq,))
         return self.cursor.fetchone()
     
+    def get_user_email(self, userSeq):
+        sql = """SELECT emailAddr from allowedUsers where userSeq = %s;"""
+        self.cursor.execute(sql, (userSeq,))
+        return self.cursor.fetchone()
+    
     def get_user_full(self, seq: str) -> list[str]:
         sql = "SELECT userID, user_full_name, userSeq FROM allowedUsers where userSeq = %s"
         self.cursor.execute(sql, (seq,))
@@ -133,9 +139,41 @@ e.addrSeq and a.statusID = f.statusID;
         return user_data
     
     def get_user_id(self, userSeq: int):
-        user_sql = """SELECT userID from allowedusers where userSeq = %s"""
+        user_sql = """SELECT userID from allowedUsers where userSeq = %s"""
         self.cursor.execute(user_sql, (userSeq,))
         return str(self.cursor.fetchone()[0])
+    
+    def authenticate_user(self, username: str, password: str) -> Tuple[bool, str, str]:
+        sql = "SELECT userSeq, userID, password FROM allowedUsers WHERE userID = %s"
+        self.cursor.execute(sql, (username,))
+
+        if self.cursor.rowcount != 1:
+            return (False, "", "")
+        
+        (user_seq, user_id, hashed_pass) = self.cursor.fetchone()
+        
+        if not bcrypt.checkpw(password.encode('utf-8'), hashed_pass.encode('utf-8')):
+            return (False, "", "")
+        
+        return (True, user_seq, user_id)
+    
+    def update_user_password(self, user_id: str, password: str) -> None:
+        # (_,_,user_seq, _) = self.get_user_by_id(user)
+        # print(f"{user_seq=}")
+
+        sql = "UPDATE allowedUsers SET password = %s WHERE userID = %s"
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        self.cursor.execute(sql, (hashed, user_id))
+        self.db.commit()
+        pass
+
+    def get_user_id_from_token(self, token: str):
+        sql = "SELECT a.userID from allowedUsers a, passwordReset b WHERE a.userSeq = b.userSeq and b.token = %s"
+        self.cursor.execute(sql, (token,))
+        if self.cursor.rowcount != 1:
+            raise app_utils.UserAccessInvalidTokenException
+        (userID,) = self.cursor.fetchone()
+        return userID
     
     def get_user_permissions(self, userID: str) -> list[bool]:
         user_info = self.get_user_by_id(userID)
@@ -306,7 +344,7 @@ e.addrSeq and a.statusID = f.statusID;
         return self.cursor.lastrowid
         
     def get_user_seq(self, user_name: str) -> int:
-        sql = "select userSeq from allowedusers where user_full_name = %s"
+        sql = "select userSeq from allowedUsers where user_full_name = %s"
         self.cursor.execute(sql, (user_name,))
         return int(self.cursor.fetchone()[0])
     
@@ -415,7 +453,7 @@ e.addrSeq and a.statusID = f.statusID;
     def get_invoice_by_id(self, invoice_id: int):
         invoice_sql = """
         select a.invoiceID, a.createdDate, b.user_full_name, c.user_full_name, d.recordName, e.line1, e.line2, e.line3, e.line4, a.tax, a.fees, a.total, f.statusDesc
-from invoice a, allowedusers b, allowedusers c, recordtype d, addresses e, statuses f
+from invoice a, allowedUsers b, allowedUsers c, recordtype d, addresses e, statuses f
 where a.creator = b.userSeq and a.approved_by = c.userSeq and a.recordType = d.typeSeq and a.return_addr =
 e.addrSeq and a.statusID = f.statusID and a.invoiceID = %s;
         """
@@ -455,7 +493,7 @@ e.addrSeq and a.statusID = f.statusID and a.invoiceID = %s;
         return invoice_data
 
     def get_approver_emails(self) -> list[str]:
-        sql = "SELECT a.emailAddr FROM allowedusers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1 AND a.isSystemUser = 0"
+        sql = "SELECT a.emailAddr FROM allowedUsers a, permissions b where a.userSeq = b.userSeq and b.canReceiveEmails = 1 and b.canApproveInvoices = 1 AND a.isSystemUser = 0"
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
         return [x[0] for x in myresult]

@@ -20,3 +20,7 @@ def user_no_userid(e):
 @app.errorhandler(app_utils.UserAccessDocketNoAdminException)
 def user_no_app_admin(e):
     return render_template("exceptions/UserAccessNotAdminException.liquid"), 403
+
+@app.errorhandler(app_utils.UserAccessInvalidTokenException)
+def user_invalid_token(e):
+    return render_template("exceptions/UserAccessInvalidTokenException.liquid"), 401
