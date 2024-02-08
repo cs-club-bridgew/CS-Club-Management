@@ -8,4 +8,9 @@ wsgi.py
 records.json
 db_config.py
 docket.json
+*.pdfsendgrid.env
+
+emails/*.json
+test.py
 *.pdf
+

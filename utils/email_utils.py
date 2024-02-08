@@ -1,7 +1,6 @@
 import smtplib
 from email.message import EmailMessage
 from email.utils import make_msgid, formataddr
-import mimetypes
 from routes.docket import load_docket, save_docket
 import time
 from utils.db_conn import connect
@@ -17,9 +16,9 @@ def modify_email_attrs(msg: EmailMessage, data: dict) -> None:
     msg['Cc'] = ', '.join(data['cc_addrs'])
     msg['Bcc'] = ', '.join(data['bcc_addrs'])
     msg.add_header('reply-to', data['reply_addr'])
-    msg.set_content(bs(data['message'], "html.parser").text, 'plain')
-    msg.add_alternative(data['message'], 'html')
-    msg.add_related(data['image'], 'image', 'png', cid=make_msgid()) 
+    msg.set_content(bs(data['html_content'], "html.parser").text, 'plain')
+    msg.add_alternative(data['html_content'], 'html')
+    # msg.add_related(data['image'], 'image', 'png', cid=make_msgid()) 
 
 def create_docket_item(invoice_id):
     db = connect(**db_settings)
@@ -37,21 +36,10 @@ def create_docket_item(invoice_id):
     result['href'] = f"/invoices/view/{invoice_id}"
     items.append(result)
     save_docket(items)
-    return "<DOCTYPE html><html><meta http-equiv='refresh' content='0; url=/docket/'/></html>", 201
-
-    
-# def alert_invoice_new(invoice_id):
-#     alert_users_of_new_invoice(invoice_id)
-#     create_docket_item(invoice_id)
-    
-    
-# def alert_invoice_update(invoice_id):
-#     alert_users_of_updated_invoice(invoice_id)
-#     create_docket_item(invoice_id)
     
     
 def send_item(msg, data):
-    smtp_host = data['smtp_host'] + str(data['port'])
+    smtp_host = data['smtp_host'] + ":" + str(data['smtp_port'])
     if data['use_ssl']:
         s = smtplib.SMTP_SSL(smtp_host)
     else:

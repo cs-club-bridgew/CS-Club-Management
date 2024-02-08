@@ -97,9 +97,7 @@ def create_inv_post():
     # add the data to the items list
     # try:
     results = db.create_invoice(**data)
-    # if results[2]:
-    #     # Send email
-    #     alert_invoice_new(results[0])
+    # m
     
     # return the ID
     db.close()
