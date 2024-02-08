@@ -3,7 +3,7 @@ from utils.db_conn import connect
 from db_config import db_settings
 from flask import request, send_file
 from flask_liquid import render_template
-from utils.email_utils import alert_invoice_new, alert_invoice_update
+# from utils.email_utils import alert_invoice_new, alert_invoice_update
 
 
 
@@ -97,9 +97,9 @@ def create_inv_post():
     # add the data to the items list
     # try:
     results = db.create_invoice(**data)
-    if results[2]:
-        # Send email
-        alert_invoice_new(results[0])
+    # if results[2]:
+    #     # Send email
+    #     alert_invoice_new(results[0])
     
     # return the ID
     db.close()
@@ -152,9 +152,9 @@ def edit_inv_post(ID=None):
         db.close()
         if seq == -1:
             return "Record not updated!", 404
-        if seq == 1:
-            # Send email
-            alert_invoice_update(ID)
+        # if seq == 1:
+        #     # Send email
+        #     alert_invoice_update(ID)
         return f"Record edited with ID: {data.get('id')}", 201
     except Exception as e:
         db.close()
