@@ -1,0 +1,30 @@
+<html>
+    <head></head>
+    <body>
+        <font face="Courier New, Courier, monospace">
+        <img src="cid:{{image_cid}}" alt="BSU Logo" style="width: 150px;"/><br/>
+
+        Hello,<br/>
+        An invoice has been updated. The invoice was created by {invoice['creator']} and is awaiting approval from an authorized user.<br/><br/>
+
+        Invoice Details:<br/>
+        Record ID: {invoice_id}<br/>
+        Total Lines: {len(invoice['li'])}<br/>
+        Created By: {invoice['creator']}<br/>
+        Created On: {invoice['date']}<br/>
+        Invoice Address:<br/>
+        {address}<br/><br/>
+
+        Line Details:<br/>
+        {lines}<br/><br/>
+
+        Taxes: ${invoice['tax']}<br/>
+        Fees: ${invoice['fees']}<br/>
+        Total: ${invoice['total']}<br/><br/>
+
+        A officer docket item has been generated to review this invoice.<br/><br/>
+
+        This is an automated email sent from a shared inbox. If you have any questions, please reach out to csclub@bridgew.edu.
+    </font>
+    </body>
+</html>
