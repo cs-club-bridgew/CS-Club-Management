@@ -2,7 +2,7 @@ from flask import Flask, send_file, make_response, request
 from flask_liquid import Liquid, render_template
 from db_config import db_settings
 from utils.db_conn import connect
-import utils.app_utils as app_utils
+
 
 app = Flask(__name__)
 liquid = Liquid(app)
@@ -14,6 +14,7 @@ import routes.invoices
 import routes.docket
 import routes.error_handler
 import routes.admin
+import utils.email_utils
 
 @app.route("/style.css")
 def get_main_css():
@@ -90,3 +91,32 @@ def get_theme_1():
 @app.get("/2.css")
 def get_theme_2():
     return send_file("static/themes/2.css")
+
+if __name__ == "__main__":
+   with app.app_context():
+        print(render_template("invoices/main.liquid", **{
+            "id": str(invoice[0]),
+            "date": "10/22/2024",
+            "creator": "Alex Dasneves",
+            "approver": "",
+            "type": "invoice",
+            "tax": 0.00,
+            "fees": 0.00,
+            "total": 10.00,
+            "status": "pending",
+            "li": [
+                {
+                    "line": "1",
+                    "desc": "",
+                    "ammt": line[2],
+                    "qty": line[3],
+                    "total": line[4]
+                } for line in lines
+            ],
+            "return_addr": [
+                invoice[5],
+                invoice[6],
+                invoice[7],
+                invoice[8]
+                ]
+                }))

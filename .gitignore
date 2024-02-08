@@ -6,4 +6,4 @@ wsgi.py
 records.json
 db_config.py
 docket.json
-*.pdf
+*.pdfsendgrid.env
