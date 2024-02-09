@@ -24,3 +24,7 @@ def user_no_app_admin(e):
 @app.errorhandler(app_utils.UserAccessInvalidTokenException)
 def user_invalid_token(e):
     return render_template("exceptions/UserAccessInvalidTokenException.liquid"), 401
+
+@app.errorhandler(500)
+def return_internal_server(e):
+    return render_template("exceptions/InternalServerError.liquid"), 500

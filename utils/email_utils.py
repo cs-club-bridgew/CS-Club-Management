@@ -1,5 +1,6 @@
 import smtplib
 from email.message import EmailMessage
+import mimetypes
 from email.utils import make_msgid, formataddr
 from routes.docket import load_docket, save_docket
 import time
@@ -18,7 +19,19 @@ def modify_email_attrs(msg: EmailMessage, data: dict) -> None:
     msg.add_header('reply-to', data['reply_addr'])
     msg.set_content(bs(data['html_content'], "html.parser").text, 'plain')
     msg.add_alternative(data['html_content'], 'html')
-    # msg.add_related(data['image'], 'image', 'png', cid=make_msgid()) 
+    image_cid = make_msgid(domain='xyz.com')
+    msg.add_alternative(msg.format(image_cid=image_cid[1:-1]), 'html')
+    
+    with open('static/invoices/logo.jpg', 'rb') as img:
+
+        # know the Content-Type of the image
+        maintype, subtype = mimetypes.guess_type(img.name)[0].split('/')
+
+        # attach it
+        msg.get_payload()[1].add_related(img.read(), 
+                                            maintype=maintype, 
+                                            subtype=subtype, 
+                                            cid=image_cid)
 
 def create_docket_item(invoice_id):
     db = connect(**db_settings)

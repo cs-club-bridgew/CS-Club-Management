@@ -1,4 +1,4 @@
-from flask import Flask, send_file, make_response, request
+from flask import Flask, send_file, make_response, request, abort
 from flask_liquid import Liquid, render_template
 from flask_session import Session
 from db_config import db_settings
@@ -126,3 +126,7 @@ if __name__ == "__main__":
                 invoice[8]
                 ]
                 }))
+        
+@app.route("/500")
+def ret_ise():
+    abort(500)
