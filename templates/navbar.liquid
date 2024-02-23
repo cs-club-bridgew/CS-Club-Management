@@ -4,40 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+
+    <script src="/utils.js" defer></script>
 </head>
-<body>
-    <ul>
-        <li><a id="nav" href="/">Home</a></li>
-        <li><a id="nav" href="/invoices/">Invoices</a></li>
-        <li><a id="nav" href="/docket/">Docket</a></li>
-        <li><a id="nav" href="https://engage.bridgew.edu/csclub/home">EngageBSU</a></li>
-        <li><a id="nav" href="/about/">About</a></li>
-        <li><a id="nav" href="/set_user/">Set User Token</a></li>
-      </ul>
+<body onload="getStyle()">
+
+    <div class="navbar">
+      <a href="/">Home</a>
+      <a href="/invoices/">Finances</a>
+      <a href="/docket/">Officer Docket</a>
+      <a href="https://engage.bridgew.edu/">EngageBSU</a>
+      <a href="/about/">About</a>
+      {% if isUserAdmin %}
+        
+      
+      <div class="dropdown">
+        <button class="dropbtn">Admin
+          <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-content">
+          <a href="/admin/status/">Statuses</a>
+          <a href="/admin/record/">Record Types</a>
+          <a href="/admin/users/">Users</a>
+          <a href="/admin/addresses/">Addresses</a>
+          <a href="/admin/perms/">User Permissions</a>
+        </div>
+      </div>
+    {% endif %}
+      <a href="/set_user/">Set User Token</a>
+      <a class="nav-right">Login</a>
+      <a class="nav-right">Logout</a>
+    </div>
 </body>
 <style>
-  html{
-    background-color: #282828;
-  }
-    li {
-        float: left;
-      }
-      
-      #nav {
-        display: block;
-        padding: 8px;
-        color: #66FF66;
-        background-color: #282828;
-      }
-      #nav:hover {
-        background-color: #66FF66;
-        color: #282828;
-      }
-      ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-      }
+
 </style>
 </html>

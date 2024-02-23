@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Address #{{addr_data[0]}}</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="/admin/favicon.ico">
+
+</head>
+<body onload="getStyle()">
+    <div id="navbar"></div>
+    <br>
+    <h3>Edit Address #{{addr_data[0]}}</h3>
+    <br>
+    <form action="/admin/addresses/edit/{{addr_data[0]}}" method="post">
+    <label for="desc">Desc:</label> <input type="text" name="desc" id="desc" class="inpWide lpad" value="{{addr_data[5]}}"> <br>
+    <label for="line1">Line 1</label> <input type="text" name="line1" id="line1" class="inpWide"  value="{{addr_data[1]}}"> <br>
+    <label for="line2">Line 2</label> <input type="text" name="line2" id="line2" class="inpWide"  value="{{addr_data[2]}}"> <br>
+    <label for="line3">Line 3</label> <input type="text" name="line3" id="line3" class="inpWide"  value="{{addr_data[3]}}"> <br>
+    <label for="line4">Line 4</label> <input type="text" name="line4" id="line4" class="inpWide"  value="{{addr_data[4]}}"> <br>
+    <input type="submit" value="Update">
+    </form>
+</body>
+
+<style>
+    input.inpWide{
+        width: 300px;
+        cursor:text
+    }
+    .lpad{
+        margin-left: .86rem;
+    }
+</style>
+</html>

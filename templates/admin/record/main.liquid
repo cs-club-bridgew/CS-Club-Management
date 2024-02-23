@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addresses</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="/admin/favicon.ico">
+
+    <script>
+        function editRow(id){
+            value = prompt(`Enter a description for ID ${id}`)
+            if(value == null || value == "") return
+            // New XHR request
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", `/admin/record/edit/${id}`);
+            // Embed the data as a json object
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(JSON.stringify({description: value}));
+            xhr.onload = function(){
+                if(xhr.status == 200){
+                    location.reload()
+                }
+            }
+        }
+
+        function createRow(){
+            value = prompt(`Enter a description for the new Record Type`)
+            if(value == null || value == "") return
+            // New XHR request
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", `/admin/record/new`);
+            // Embed the data as a json object
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(JSON.stringify({description: value}));
+            xhr.onload = function(){
+                if(xhr.status == 200){
+                    location.reload()
+                }
+            }
+        }
+
+    </script>
+</head>
+<body onload="getStyle()">
+    <div id="navbar"></div>
+    <h2>Available Record Types</h2>
+    <h3>Use this page to manage record types in the system</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Type Sequence</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{record[0]}}</td>
+                    <td>{{record[1]}}</td>
+                    <td><a onclick="editRow({{record[0]}})" class="nav">Edit</a></td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td><a onclick="createRow()" class="nav">+</a></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

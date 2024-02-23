@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <script src="/utils.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="/admin/favicon.ico">
+
+    <script>
+        function forgot() {
+            let uname = document.getElementById("username").value;
+
+            if (uname == "") {
+                document.getElementById("forgotpassmsg").innerHTML = "Enter a username to request a password reset!";
+                return;
+            }
+
+            let stem = "http://localhost:5000"
+            let url = `${stem}/auth/password_req`;
+            
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", url);
+            xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+            const body = JSON.stringify({
+                username: uname
+            });
+
+            xhr.onload = () => {
+                if (xhr.readyState == 4 && xhr.status == 201) {
+                    document.getElementById("forgotpassmsg").innerHTML = "Check your email for a reset link!";
+                } else {
+                    console.log(`Error: ${xhr.status}`);
+                }
+            };
+
+            xhr.send(body);
+
+        }
+    </script>
+
+</head>
+<body onload="getStyle()">
+    <div id="navbar"></div>
+    <br>
+
+    {% if login_error != "~" %}
+        <span class="error">{{login_error}}</span><br><br>
+    {% endif %}
+
+    <form action="/auth/login?referred={{referred}}" method="post">
+    <label for="username">Username: </label>
+    <input type="text" name="username" id="username" value="{{username}}"> <br><br>
+    {% if username_error != "~" %}
+        <span class="error">{{username_error}}</span><br><br>
+    {% endif %}
+    <label for="password">Password: </label>
+    <input type="password" name="password" value="{{password}}"> <input type="checkbox" onclick="togglePassword()"> Show Password<br><br>
+    {% if password_error != "~" %}
+        <span class="error">{{password_error}}</span><br><br>
+    {% endif %}
+    <input type="submit" value="Log In"> <br><br>
+    <span id="forgotpassmsg"></span>
+    </form>
+    <br><br>
+    <button class="nav" onclick="forgot();">Forgot password?</button>
+</body>
+</html>

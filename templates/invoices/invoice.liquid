@@ -11,54 +11,44 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> {% if type=="invoice" %}
-        Invoice
-    {% else %} 
-        {% if type=="sga_budget" %}
-            SGA Budget 
-        {% else %}
-            {%if type=="c_invoice" %}
-                Credit Invoice
-            {% endif %}
-        {% endif %}
-    {% endif %}
-    #{{id}}</title>
+    <title> {{type}} #{{id}}</title>
 
     <script>
-    {% if status=="open" %}
-        alert("Invoice status: Open\nAwaiting Payment.");
-    {% endif %}
 
-    {% if status=="closed" %}
-        alert("Invoice status: Closed");
-    {% endif %}
+    function getCookie(name) {
+        var dc = document.cookie;
+        var prefix = name + "=";
+        var begin = dc.indexOf("; " + prefix);
+        if (begin == -1) {
+            begin = dc.indexOf(prefix);
+            if (begin != 0) return null;
+        }
+        else
+        {
+            begin += 2;
+            var end = document.cookie.indexOf(";", begin);
+            if (end == -1) {
+            end = dc.length;
+            }
+        }
+        // because unescape has been deprecated, replaced with decodeURI
+        //return unescape(dc.substring(begin + prefix.length, end));
+        return decodeURI(dc.substring(begin + prefix.length, end));
+    } 
 
-    {% if status=="pending" %}
-        alert("Invoice status: Pending\nAwaiting Approval.");
-    {% endif %}
+        var myCookie = getCookie("printing");
 
-    {% if status=="rejected" %}
-        alert("Invoice status: Rejected");
-    {% endif %}
-
-    {% if status=="approved" %}
-        alert("Invoice status: Approved\nAwaiting Payment.");
-    {% endif %}
-
-    {% if status=="paid" %}
-        alert("Invoice status: Paid");
-    {% endif %}
-
-    {% if status=="cancelled" %}
-        alert("Invoice status: Cancelled");
-    {% endif %}
+        if (myCookie == null) {
+            // do cookie doesn't exist stuff;
+            alert("Invoice Status: {{status}}")
+        }
     </script>
 
 </head>
-<body>
+<body onload="getStyle()">
     <div class="paper">
         {% comment %} <img src="https://admissions-fitchburgstate-edu.cdn.technolutions.net/www/images/kisspng-bridgewater-state-university-attleboro-clark-unive-5b01d94fa8ee30_333518441526847823692_A.jpg" class="logo"> {% endcomment %}
-        <img src="/invoices/logo" class="logo">
+        <img src="/invoices/logo.jpg" class="logo">
         <div class="retAddr">
         <p>
            {% for item in return_addr %}
@@ -85,12 +75,14 @@
                 <th>Date</th>
                 <th>Created By</th>
                 <th>Approved By</th>
+                <th>Status</th>
             </tr>
             <tr>
                 <td>{{id}}</td>
                 <td>{{date}}</td>
                 <td>{{creator}}</td>
                 <td>{{approver}}</td>
+                <td>{{status}}</td>
             </tr>
         </table>
         
@@ -149,8 +141,8 @@
 <style>
     .paper{
         position: absolute;
-        width: 7.5in;
-        height: 10in;
+        width: 8.5in;
+        height: 11in;
         /*outline: 1px solid black;*/
         padding: .5in
     }
@@ -170,9 +162,12 @@
         border: .01in solid crimson;
         border-top: .03in solid Crimson;
         margin-bottom: -6px;
+        width: 8.5in;
     }
     .top2{
         border: .01in solid black;
+        width: 8.5in;
+
     }
     h1.hr_text{
         position:absolute;
@@ -197,6 +192,10 @@
     fieldset{
         width: 30%;
     }
+    html{
+        height: 11in;
+        width: 8in;
+    }
     
     td{
         padding: 4px;
@@ -220,18 +219,19 @@
 
     .bot1{
         position: absolute;
-        width: 7.5in;
         bottom: 0.5in;
         border: .01in solid crimson;
         border-top: .03in solid crimson;
         margin-bottom: -6px;
+        width: 8.5in;
     }
     .bot2{
         position: absolute;
-        width: 7.5in;
         bottom: 0.45in;
         margin-bottom: -6px;
         border: .01in solid black;
+        width: 8.5in;
+
     }
     th, td, tr{
         text-transform: | capitalize;
