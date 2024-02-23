@@ -136,3 +136,17 @@ CREATE TABLE permissions
     CONSTRAINT permissions_allowedusers_userSeq_fk
         foreign key (userSeq) references allowedusers (userSeq)
 );
+
+# --- Lyra's Password scratch work --- 
+
+alter table allowedUsers add column password varchar(255) not null;
+
+CREATE TABLE passwordReset
+(
+    prSeq int auto_increment primary key,
+    userSeq int not null unique,
+    token varchar(40) not null unique,
+    created_at datetime default CURRENT_TIMESTAMP,
+
+    constraint foreign key (userSeq) references allowedUsers (userSeq)
+);

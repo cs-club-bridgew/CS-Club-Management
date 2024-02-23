@@ -3,13 +3,17 @@ from utils.db_conn import connect
 from db_config import db_settings
 from flask import request, render_template, send_file, make_response, session, redirect
 
+from utils.email_utils import send_email_from_dict
+
 import string
 import uuid
 
 @app.route("/auth/login", methods=["GET", "POST"])
 def login_page():
-    if "loggedin" in session and session["loggedin"]:
-        return redirect("/", code=302)
+    print(request.args.get("referred"))
+    redir = request.args.get("referred") if request.args.get("referred") else "/"
+    if session.get("loggedin"):
+        return redirect(redir, code=302)
 
     username = ""
     password = ""
@@ -39,12 +43,13 @@ def login_page():
                 session["loggedin"] = True
                 session["id"] = user_seq
                 session["username"] = user_id
-                return redirect("/", code=302)
+                return redirect(redir, code=302)
+                # return redirect("/", code=302)
             else:
                 login_error = "Invalid username or password"
             
 
-    return render_template("auth/login.liquid", username=username, password=password, username_error=username_error, password_error=password_error, login_error=login_error)
+    return render_template("auth/login.liquid", username=username, password=password, username_error=username_error, password_error=password_error, login_error=login_error, referred=redir)
     
 
 @app.route("/auth/chpass/<token>", methods=["GET", "POST"])
@@ -100,12 +105,14 @@ def has_one(s: str, set: str) -> bool:
 
 @app.route("/auth/password_req", methods=["POST"])
 def request_password():
-    uname = request.form["username"]
-    send_user_email(uname)
-    send_system_email()
-    pass
+    print([x for x in request.get_json().items()])
+    uname = request.get_json().get("username")
+    send_email_from_dict(build_user_email(uname))
+    send_email_from_dict(build_system_email())
 
-def send_user_email(uname):
+    return "OK", 201
+
+def build_user_email(uname):
     db = connect(**db_settings)
     (_,_,user_seq, _) = db.get_user_by_id(uname)
     user_email = db.get_user_email(user_seq)
@@ -142,7 +149,9 @@ Officer Support Team
         "html_content": content
     }
 
-def send_system_email():
+    return email
+
+def build_system_email():
     content = f"""
 A password request has just been requested for a user.
 
@@ -169,4 +178,5 @@ Officer Support Team
         "reply_addr": "csclub@bridgew.edu",
         "html_content": content
     }
-    pass
+
+    return email

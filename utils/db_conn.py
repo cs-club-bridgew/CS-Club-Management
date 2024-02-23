@@ -158,13 +158,11 @@ e.addrSeq and a.statusID = f.statusID;
         return (True, user_seq, user_id)
     
     def update_user_password(self, user_id: str, password: str) -> None:
-        # (_,_,user_seq, _) = self.get_user_by_id(user)
-        # print(f"{user_seq=}")
-
         sql = "UPDATE allowedUsers SET password = %s WHERE userID = %s"
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         self.cursor.execute(sql, (hashed, user_id))
         self.db.commit()
+        self.remove_user_password_token(user_id)
         pass
 
     def get_user_id_from_token(self, token: str):
@@ -174,6 +172,20 @@ e.addrSeq and a.statusID = f.statusID;
             raise app_utils.UserAccessInvalidTokenException
         (userID,) = self.cursor.fetchone()
         return userID
+    
+    def set_user_password_token(self, user_seq: int, req_uuid: str):
+        sql = "INSERT INTO passwordReset (userSeq, token) VALUES (%s, %s)"
+        self.cursor.execute(sql, (user_seq, req_uuid))
+    
+    def remove_user_password_token(self, user_id):
+        sql = "SELECT userSeq FROM allowedUsers WHERE userID = %s"
+        self.cursor.execute(sql, (user_id,))
+        (user_seq,) = self.cursor.fetchone()
+
+        sql = "DELETE FROM passwordReset WHERE userSeq = %s"
+        self.cursor.execute(sql, (user_seq,))
+        self.db.commit()
+
     
     def get_user_permissions(self, userID: str) -> list[bool]:
         user_info = self.get_user_by_id(userID)
