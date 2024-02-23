@@ -7,22 +7,16 @@
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/invoices/style.css">
     <link rel="icon" type="image/x-icon" href="/docket/favicon.ico">
-    <!-- Load the jQuery, and utils.js-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
-    <script src="/utils.js" defer></script>
+
     <script>
         // Populate the date field with the date from the database
         function populateDate(){
             let date = new Date({{record.create_date}} * 1000);
-            const options = {year: 'numeric', month: 'short', day: 'numeric' };
-            document.getElementById("createDate").innerHTML = date.toLocaleString('en-US', options);
+            document.getElementById("createDate").innerHTML = date.toLocaleString();
         }
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
-    <script src="/utils.js" defer></script>
 </head>
-<body onload="getStyle(); populateDate();">
-<div id="navbar"></div>
+<body onload="populateDate()">
     <button onclick="window.location.href='/docket/'">Back</button>
     <button onclick="window.location.href='/docket/edit/{{record.docket_id}}'">Edit</button>
     <br>
