@@ -1,12 +1,11 @@
 from app import app
-from utils.db_conn import connect
+from db_conn import connect
 from flask import request, send_file, make_response
 from flask_liquid import render_template
 from db_config import db_settings
 import json
 import time
-import utils.app_utils
-from utils.docket_report import generate_docket_report
+from docket_report import generate_docket_report
 
 def load_docket():
     try:
@@ -15,8 +14,6 @@ def load_docket():
         with open("docket.json", "w") as f:
             json.dump([], f)
         return []
-    
-
 
 
 def save_docket(docket):
@@ -26,7 +23,8 @@ def save_docket(docket):
 @app.route("/docket/")
 def get_docket_root():
     db = connect(**db_settings)
-    db.can_user_view_docket(request.cookies.get('userID', ''))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
     db.close()
     items = load_docket()
     return render_template("docket/main.liquid", docket_items=items)
@@ -35,7 +33,10 @@ def get_docket_root():
 @app.route("/docket/view/<ID>")
 def view_docket_item(ID=None):
     db = connect(**db_settings)
-    db.can_user_view_docket(request.cookies.get('userID'))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
+    if ID is None:
+        return "Docket ID not supplied", 400
     db.close()
     items = load_docket()
     record = items[int(ID) - 1]
@@ -45,8 +46,9 @@ def view_docket_item(ID=None):
 @app.post("/docket/new/")
 def add_docket_item():
     db = connect(**db_settings)
-    db.can_user_edit_docket(request.cookies.get('userID'))
-    user = db.get_user_name(request.cookies.get('userID'))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
+    user = db.get_user(request.cookies.get('userID'))
     db.close()
     items = load_docket()
     result = {
@@ -64,7 +66,10 @@ def add_docket_item():
 @app.post("/docket/edit/<ID>")
 def edit_docket_item(ID=None):
     db = connect(**db_settings)
-    db.can_user_edit_docket(request.cookies.get('userID'))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
+    if ID is None:
+        return "Docket ID not supplied", 400
     
     db.close()
     items = load_docket()
@@ -90,23 +95,19 @@ def edit_docket_item(ID=None):
 @app.route("/docket/edit/<ID>")
 def get_docket_exit(ID=None):
     db = connect(**db_settings)
-    db.can_user_edit_docket(request.cookies.get('userID'))
-    user_info = db.get_user_name(request.cookies.get('userID'))
-    try:
-        is_doc_admin = db.is_user_docket_admin(request.cookies.get("userID"))
-    except utils.app_utils.UserAccessDocketNoAdminException:
-        is_doc_admin = False
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
+    user_info = db.get_user_full(request.cookies.get('userID'))
     db.close()
     items = load_docket()
-    if items[int(ID) - 1]["created_by"] == user_info or is_doc_admin:
-        return render_template("docket/edit.liquid", record=items[int(ID) - 1], isAdmin=is_doc_admin)
-    else:
-        raise utils.app_utils.UserAccessDocketNoEditException
+    return render_template("docket/edit.liquid", record=items[int(ID) - 1], current_user=user_info)
+
 
 @app.route("/docket/favicon.ico")
 def docket_favicon():
     db = connect(**db_settings)
-    db.can_user_view_docket(request.cookies.get('userID'))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
     db.close()
     return send_file("./static/docket/favicon.ico", mimetype='image/gif')
 
@@ -114,8 +115,9 @@ def docket_favicon():
 @app.get("/docket/new/")
 def create_docket():
     db = connect(**db_settings)
-    db.can_user_edit_docket(request.cookies.get('userID'))
-    user_name = db.get_user_name(request.cookies.get('userID'))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
+    user_name = db.get_user(request.cookies.get('userID'))
     db.close()
     recordID = len(load_docket()) + 1
 
@@ -125,7 +127,8 @@ def create_docket():
 @app.get("/docket/report/<START>/<END>")
 def gen_report(START=None, END=None):
     db = connect(**db_settings)
-    db.can_user_view_docket(request.cookies.get('userID'))
+    if request.cookies.get('userID') not in db.get_available_users():
+        return "You are not allowed to access this page", 403
 
     if START is None or END is None:
         return "Start and end dates not supplied", 400

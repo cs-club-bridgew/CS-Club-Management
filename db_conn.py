@@ -16,6 +16,16 @@ class connect:
             database=self.db
         )
         self.mycursor = self.mydb.cursor()
+    
+    def get_user(self, id: str) -> str:
+        user = self.get_user_full(id)
+        return user[1]
+    
+    def get_user_full(self, id: str) -> str:
+        sql = "SELECT userID, user_name, administrator FROM allowedUsers where userID = %s"
+        self.mycursor.execute(sql, (id,))
+        myresult = self.mycursor.fetchone()
+        return myresult
 
     def validate_address(self, address: List[str], addr_desc: str) -> int:
         self.mycursor.execute("SELECT * FROM addresses")
@@ -241,12 +251,10 @@ class connect:
         return self.mycursor.lastrowid
 
     def get_available_users(self) -> List[str]:
-        sql = "SELECT userID FROM allowedUsers"
+        sql = "SELECT * FROM allowedUsers"
         self.mycursor.execute(sql)
         myresult = self.mycursor.fetchall()
         return [x[0] for x in myresult]
-    
-    
 
     def close(self):
         self.mydb.commit()

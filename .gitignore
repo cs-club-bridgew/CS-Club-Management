@@ -1,6 +1,4 @@
-.venv
-.vscode
-flask_session
+venv
 __pycache__
 records.*
 Invoices.sock
@@ -8,10 +6,3 @@ wsgi.py
 records.json
 db_config.py
 docket.json
-*.pdf
-sendgrid.env
-
-emails/*.json
-test.py
-*.pdf
-

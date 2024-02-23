@@ -11,11 +11,10 @@
     <script>
         function populateDate(){
             let cell;
-            const options = {year: 'numeric', month: 'short', day: 'numeric' };
             {% for row in docket_items %}
                 cell = document.getElementById("{{row.docket_id}}");
-                
-                cell.innerText = (new Date({{row.create_date}} * 1000)).toLocaleString('en-US', options);
+                cell.innerText = (new Date({{row.create_date}} * 1000)).toLocaleString();
+                console.log("{{row.total}}")
                 
             {% endfor %}
 
@@ -43,11 +42,9 @@
 
         };
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
-    <script src="/utils.js" defer></script>
 </head>
-<body onload="populateDate();getStyle()">
-    <div id="navbar"></div>
+<body onload="populateDate()">
+    {% render "navbar.liquid" %}
     <br>
     <br>
     <button onclick="window.location.href='/docket/new/'">Create Docket Record</button>
@@ -96,7 +93,7 @@
                     </td>
                 {% endif %}
                 <td>{{ row.title }}</td>
-            <td><a class="nav" href="/docket/view/{{ row.docket_id }}">View</a> {% if row.href %} <a href="{{row.href}}" class="nav" target="_blank">Goto</a> {% endif %}</td>
+                <td><a id="nav" href="/docket/view/{{ row.docket_id }}">View</a></td>
             </tr>
         {% endfor %}
     </table>
